@@ -1,0 +1,14 @@
+# Normalise line endings
+* text=auto
+
+# Binary outputs
+*.docx binary
+*.pdf binary
+*.xlsx binary
+
+# Generated files: collapse in pull request diffs, keep out of language stats
+CLI-Cheat-Sheet.md linguist-generated=true
+CLI-Cheat-Sheet.html linguist-generated=true
+CLI-Cheat-Sheet.docx linguist-generated=true
+CLI-Cheat-Sheet.pdf linguist-generated=true
+package-lock.json linguist-generated=true

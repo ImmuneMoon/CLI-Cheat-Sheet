@@ -1,0 +1,60 @@
+name: Build cheat sheet
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/build.yml"
+  pull_request:
+    paths:
+      - "src/**"
+      - "package.json"
+      - "package-lock.json"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install fonts for the PDF (Carlito is metric-compatible with Calibri)
+        run: sudo apt-get update -q && sudo apt-get install -y -q fonts-crosextra-carlito fonts-dejavu-core
+
+      - run: npm ci
+
+      - name: Check content
+        run: npm test
+
+      - name: Build Markdown, DOCX, HTML and PDF
+        run: npm run build
+        env:
+          BROWSER_BIN: /usr/bin/google-chrome
+
+      - name: Commit rebuilt outputs
+        if: github.event_name != 'pull_request'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add CLI-Cheat-Sheet.md CLI-Cheat-Sheet.docx CLI-Cheat-Sheet.html CLI-Cheat-Sheet.pdf
+          if git diff --cached --quiet; then
+            echo "Outputs unchanged."
+          else
+            git commit -m "Rebuild cheat sheet outputs [skip ci]"
+            git push
+          fi

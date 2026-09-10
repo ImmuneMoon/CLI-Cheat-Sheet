@@ -1,0 +1,17 @@
+{
+  "name": "cli-cheat-sheet",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Windows CMD, PowerShell, Bash and Git commands side by side. Builds Markdown, DOCX, HTML and PDF from one data file.",
+  "scripts": {
+    "test": "node src/check-content.js",
+    "build": "npm test && npm run build:md && npm run build:docx && npm run build:html && npm run build:pdf",
+    "build:md": "node src/build-md.js",
+    "build:docx": "node src/build-docx.js",
+    "build:html": "node src/build-html.js",
+    "build:pdf": "node src/build-pdf.js"
+  },
+  "dependencies": {
+    "docx": "^9.0.0"
+  }
+}

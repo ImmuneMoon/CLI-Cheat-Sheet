@@ -1,0 +1,36 @@
+# Old and superseded versions of the cheat sheet live in legacy/ and stay local.
+# Current builds use hyphenated names (CLI-Cheat-Sheet.*) and are committed.
+legacy/
+old/
+archive/
+CLI Cheat Sheet*.docx
+CLI Cheat Sheet*.xlsx
+CLI Cheat Sheet*.pdf
+CLI Cheat Sheet*.html
+*.old
+*.old.*
+*.bak
+*.orig
+*~
+*(1).*
+*(2).*
+*(3).*
+* - Copy.*
+*-old.*
+*_old.*
+
+# Office lock files
+~$*
+.~lock.*
+
+# Local tooling
+.claude/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# OS clutter
+.DS_Store
+Thumbs.db
+desktop.ini
