@@ -9,7 +9,8 @@
     "build:md": "node src/build-md.js",
     "build:docx": "node src/build-docx.js",
     "build:html": "node src/build-html.js",
-    "build:pdf": "node src/build-pdf.js"
+    "build:pdf": "node src/build-pdf.js",
+    "restore": "git restore CLI-Cheat-Sheet.md CLI-Cheat-Sheet.docx CLI-Cheat-Sheet.html CLI-Cheat-Sheet.pdf"
   },
   "dependencies": {
     "docx": "^9.0.0"

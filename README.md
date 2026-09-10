@@ -73,9 +73,25 @@ npm run build
 
 Old builds live in `legacy/`, which is ignored by git along with `old/` and `archive/`.
 
-### Automatic rebuilds
+### Who commits the built files
 
-A GitHub Actions workflow (`.github/workflows/build.yml`) runs the checks and rebuilds all outputs whenever `src/` changes on `main`, then commits the results back. On pull requests it runs the checks and build without committing. So contributors only need to edit `src/content.js`; the generated files take care of themselves.
+**The GitHub Actions workflow does, not you.** `.github/workflows/build.yml` runs the checks and rebuilds all four outputs whenever `src/` changes on `main`, then commits the results back with a "Rebuild cheat sheet outputs" commit. On pull requests it runs the checks and build without committing.
+
+The everyday flow is therefore:
+
+1. Edit `src/content.js`.
+2. Run `npm test`. Optionally run `npm run build` and open the results to check them.
+3. Commit **only** your source changes (`src/`, `README.md`, and so on). If you built locally, discard the regenerated outputs first with `npm run restore`.
+4. Push. A minute later the workflow commits the rebuilt DOCX, HTML, Markdown and PDF, and the GitHub Pages site updates.
+5. Pull before your next change so you have the bot's commit.
+
+Committing the built files yourself works, but if the workflow also rebuilds them you get a merge conflict on the DOCX and PDF, because git cannot merge binaries. If that happens, keep whichever side was built from the newer source (usually yours), then push and let the workflow rebuild on top:
+
+```bash
+git checkout --ours CLI-Cheat-Sheet.docx CLI-Cheat-Sheet.pdf
+git add CLI-Cheat-Sheet.docx CLI-Cheat-Sheet.pdf
+git commit
+```
 
 ## Contributing
 
