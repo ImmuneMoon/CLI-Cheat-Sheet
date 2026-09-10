@@ -18,6 +18,7 @@ const PAGE_W = 15840, PAGE_H = 12240, MARGIN = 864;           // 0.6in margins
 const TEXT_W = PAGE_W - 2 * MARGIN;                            // 14112
 const COLS = [1750, 3250, 3700, 3300, 2112];                   // sums to 14112
 const HEADERS = ['Task', 'CMD', 'PowerShell', 'Bash', 'Notes'];
+const PLATFORM_HEADERS = ['Task', 'Windows', 'macOS', 'Linux', 'Notes'];
 const SINGLE_COLS = [2000, 7600, 4512];                        // kind: 'single' sections; sums to 14112
 const SINGLE_HEADERS = ['Task', 'Command', 'Notes'];
 const ESS_COLS = [2000, 4037, 4038, 4037];                     // Everyday Essentials; sums to 14112
@@ -109,8 +110,8 @@ function singleTable(rows) {
   return new Table({ columnWidths: SINGLE_COLS, width: { size: TEXT_W, type: WidthType.DXA }, borders: tableBorders, rows: trs });
 }
 
-function commandTable(rows, sectionTitle) {
-  const trs = [headerRow(HEADERS)];
+function commandTable(rows, sectionTitle, headers = HEADERS) {
+  const trs = [headerRow(headers)];
   rows.forEach((r, idx) => {
     const [fn, cmd, ps, bash, note] = r;
     const fill = idx % 2 === 1 ? C_ZEBRA : undefined;
@@ -172,7 +173,7 @@ children.push(essentialsTable(resolveEssentials(sections, essentials)));
 
 for (const s of sections) {
   children.push(h2(s.title));
-  children.push(s.kind === 'single' ? singleTable(s.rows) : commandTable(s.rows, s.title));
+  children.push(s.kind === 'single' ? singleTable(s.rows) : commandTable(s.rows, s.title, s.kind === 'platform' ? PLATFORM_HEADERS : HEADERS));
 }
 
 children.push(h2('Keyboard Shortcuts'));

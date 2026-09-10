@@ -1,6 +1,8 @@
 # CLI Cheat Sheet
 
-Windows CMD, PowerShell and Bash (Linux and macOS) commands side by side, plus a Git section. Every row shows the same task in all three shells, with the flags explained and the gotchas called out.
+Windows CMD, PowerShell and Bash (Linux and macOS) commands side by side, plus Git and a developer setup guide. Every row shows the same task in all three shells, with the flags explained and the gotchas called out.
+
+**Read it online:** [immunemoon.github.io/CLI-Cheat-Sheet](https://immunemoon.github.io/CLI-Cheat-Sheet/CLI-Cheat-Sheet.html)
 
 ## Get the sheet
 
@@ -24,6 +26,7 @@ Windows CMD, PowerShell and Bash (Linux and macOS) commands side by side, plus a
 - Redirection and piping
 - Users and groups
 - Package management
+- Developer setup, by operating system: WSL, package managers, Git, GitHub CLI, SSH keys, Node.js, Python, VS Code, PowerShell 7, build tools, Docker
 - Git: setup, commits, branches, remotes, undo, stash, tags, search
 - Keyboard shortcuts
 - Notes and gotchas: paths, quoting, wildcards, how PowerShell differs, macOS, zsh and WSL, Git on Windows
@@ -50,6 +53,8 @@ Each row is:
 ```
 
 A trailing `(...)` on a command is rendered as a grey italic annotation. A line that is entirely `(...)` is rendered as a note with no code.
+
+Two other section shapes exist: `kind: 'single'` for tools that are identical in every shell (Git), with rows of `[task, [commands], note]`, and `kind: 'platform'` for things that differ by operating system (Developer Setup), with rows of `[task, [windows], [macos], [linux], note]`.
 
 Notes in the Notes and Gotchas section carry tags (`cmd`, `ps`, `bash`, or a single-column section such as `git`) so the HTML can hide the ones that do not apply to the shells currently shown. A whole group takes one tag list; a single bullet can narrow it with `[text, tags]`.
 

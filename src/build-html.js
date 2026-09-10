@@ -42,6 +42,14 @@ const essentialRows = rows => table(['Task', 'CMD', 'PowerShell', 'Bash'], rows,
   `<td>${r[3].map(cmdLine).join('')}</td>`,
 ], 'multi essentials');
 
+const platformRows = (rows, sectionTitle) => table(['Task', 'Windows', 'macOS', 'Linux', 'Notes'], rows, r => [
+  taskCell(r[0], STARRED.has(key(sectionTitle, r[0]))),
+  `<td>${r[1].map(cmdLine).join('')}</td>`,
+  `<td>${r[2].map(cmdLine).join('')}</td>`,
+  `<td>${r[3].map(cmdLine).join('')}</td>`,
+  `<td class="note">${esc(r[4])}</td>`,
+], 'platform');
+
 const singleRows = rows => table(['Task', 'Command', 'Notes'], rows, r => [
   `<td class="task">${esc(r[0])}</td>`,
   `<td>${r[1].map(cmdLine).join('')}</td>`,
@@ -61,7 +69,8 @@ const sectionHideCss = singleSections.map(s => `body.hide-${slug(s.title)} #${sl
 
 let body = '';
 body += `<section id="everyday-essentials" class="multi-section"><h2>Everyday Essentials</h2><p class="lead">The commands most people use every day, in short form. Click a task name for the full entry with more options and notes.</p>${essentialRows(resolveEssentials(sections, essentials))}</section>`;
-for (const s of sections) body += `<section id="${slug(s.title)}"${s.kind === 'single' ? '' : ' class="multi-section"'}><h2>${esc(s.title)}</h2>${s.kind === 'single' ? singleRows(s.rows) : commandRows(s.rows, s.title)}</section>`;
+const tableFor = s => s.kind === 'single' ? singleRows(s.rows) : s.kind === 'platform' ? platformRows(s.rows, s.title) : commandRows(s.rows, s.title);
+for (const s of sections) body += `<section id="${slug(s.title)}"${s.kind === 'single' ? '' : ' class="multi-section"'}><h2>${esc(s.title)}</h2>${tableFor(s)}</section>`;
 const multiTitles = new Set(['Everyday Essentials', ...sections.filter(s => s.kind !== 'single').map(s => s.title)]);
 body += `<section id="keyboard-shortcuts"><h2>Keyboard Shortcuts</h2>${shortcutRows(shortcuts)}</section>`;
 body += '<section id="notes-and-gotchas"><h2>Notes and Gotchas</h2><div class="notes">';
@@ -95,6 +104,10 @@ th{background:var(--head);color:#fff;font-weight:600}
 tbody tr:nth-child(even){background:var(--zebra)}
 table.multi th:nth-child(1){width:12.4%}table.multi th:nth-child(2){width:23%}table.multi th:nth-child(3){width:26.2%}table.multi th:nth-child(4){width:23.4%}table.multi th:nth-child(5){width:15%}
 table.single th:nth-child(1){width:14%}table.single th:nth-child(2){width:54%}table.single th:nth-child(3){width:32%}
+table.platform th:nth-child(1){width:12.4%}table.platform th:nth-child(2){width:26%}table.platform th:nth-child(3){width:22%}table.platform th:nth-child(4){width:24%}table.platform th:nth-child(5){width:15.6%}
+body.hide-cmd.hide-ps table.platform th:nth-child(2),body.hide-cmd.hide-ps table.platform td:nth-child(2),
+body.hide-bash table.platform th:nth-child(3),body.hide-bash table.platform td:nth-child(3),
+body.hide-bash table.platform th:nth-child(4),body.hide-bash table.platform td:nth-child(4){display:none}
 table.essentials th:nth-child(1){width:14%}table.essentials th:nth-child(2),table.essentials th:nth-child(3),table.essentials th:nth-child(4){width:28.66%}
 .star{color:#d97706;font-weight:700}
 .lead{margin:0 0 8px;font-size:13px;color:var(--muted)}

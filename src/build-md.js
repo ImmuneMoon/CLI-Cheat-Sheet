@@ -61,7 +61,7 @@ for (const s of sections) {
   const star = task => STARRED.has(key(s.title, task)) ? '★ ' : '';
   md += s.kind === 'single'
     ? table(['Task', 'Command', 'Notes'], s.rows.map(r => [`**${cellSafe(r[0])}**`, lines(r[1]), cellSafe(r[2])]))
-    : table(['Task', 'CMD', 'PowerShell', 'Bash', 'Notes'], s.rows.map(r => [
+    : table(s.kind === 'platform' ? ['Task', 'Windows', 'macOS', 'Linux', 'Notes'] : ['Task', 'CMD', 'PowerShell', 'Bash', 'Notes'], s.rows.map(r => [
         `${star(r[0])}**${cellSafe(r[0])}**`, lines(r[1]), lines(r[2]), lines(r[3]), cellSafe(r[4]),
       ]));
   md += '\n';

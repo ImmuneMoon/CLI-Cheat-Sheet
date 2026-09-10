@@ -6,7 +6,7 @@ Windows CMD · PowerShell · Bash (Linux and macOS) · Git
 
 Also available as [HTML](CLI-Cheat-Sheet.html) (searchable, dark mode), [PDF](CLI-Cheat-Sheet.pdf) (print) and [DOCX](CLI-Cheat-Sheet.docx) (edit).
 
-**Contents:** [Everyday Essentials](#everyday-essentials) · [File and Directory Management](#file-and-directory-management) · [Disk and Storage](#disk-and-storage) · [System and User Information](#system-and-user-information) · [Processes, Services and Power](#processes-services-and-power) · [Networking and Diagnostics](#networking-and-diagnostics) · [Environment, History and Shell Basics](#environment-history-and-shell-basics) · [Text Processing and Output](#text-processing-and-output) · [Redirection and Piping](#redirection-and-piping) · [Users and Groups](#users-and-groups) · [Package Management](#package-management) · [Git](#git) · [Keyboard Shortcuts](#keyboard-shortcuts) · [Notes and Gotchas](#notes-and-gotchas)
+**Contents:** [Everyday Essentials](#everyday-essentials) · [File and Directory Management](#file-and-directory-management) · [Disk and Storage](#disk-and-storage) · [System and User Information](#system-and-user-information) · [Processes, Services and Power](#processes-services-and-power) · [Networking and Diagnostics](#networking-and-diagnostics) · [Environment, History and Shell Basics](#environment-history-and-shell-basics) · [Text Processing and Output](#text-processing-and-output) · [Redirection and Piping](#redirection-and-piping) · [Users and Groups](#users-and-groups) · [Package Management](#package-management) · [Developer Setup](#developer-setup) · [Git](#git) · [Keyboard Shortcuts](#keyboard-shortcuts) · [Notes and Gotchas](#notes-and-gotchas)
 
 ## Everyday Essentials
 
@@ -185,6 +185,24 @@ The commands most people use every day, in short form. Each one appears again in
 | **Update** | `winget upgrade` *(list available)*<br>`winget upgrade --all` | `winget upgrade --all`<br>`choco upgrade all`<br>`Update-Module` | `sudo apt update && sudo apt upgrade`<br>`sudo dnf upgrade`<br>`brew update && brew upgrade`<br>`sudo pacman -Syu` | apt update only refreshes the package index. apt upgrade does the installing. |
 | **Remove** | `winget uninstall Git.Git` | `winget uninstall Git.Git`<br>`choco uninstall git`<br>`Uninstall-Module name` | `sudo apt remove git` *(keeps config)*<br>`sudo apt purge git` *(removes config)*<br>`sudo apt autoremove` *(orphaned dependencies)*<br>`brew uninstall git` |  |
 
+## Developer Setup
+
+| Task | Windows | macOS | Linux | Notes |
+| --- | --- | --- | --- | --- |
+| **Install WSL (Linux on Windows)** | `wsl --install` *(Ubuntu by default; reboot afterwards)*<br>`wsl --install -d Debian` *(pick a distro)*<br>`wsl -l -v` *(list distros and versions)*<br>`wsl --update`<br>`wsl --shutdown`<br>`wsl` *(open the default distro)* | *(not needed; macOS is already Unix)* | *(not needed)* | 🔒 Run from an administrator prompt. Inside WSL, Windows drives are under /mnt/c and Windows tools are on the PATH, so code . opens VS Code. |
+| **Package manager** | `winget --version` *(built in on Windows 10 1709+ and 11)*<br>`winget source update`<br>*(Chocolatey is optional: see chocolatey.org/install)* | `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`<br>`brew doctor` | *(apt, dnf or pacman is already installed)*<br>`sudo apt update` *(refresh the index first)* | If winget is missing, install "App Installer" from the Microsoft Store. |
+| **Git** | `winget install --id Git.Git -e`<br>`git --version` | `xcode-select --install` *(Apple's git plus compilers)*<br>`brew install git` *(newer version)* | `sudo apt install git`<br>`sudo dnf install git` | On Windows this also installs Git Bash. |
+| **GitHub CLI** | `winget install --id GitHub.cli -e`<br>`gh auth login` | `brew install gh`<br>`gh auth login` | `sudo apt install gh` *(Ubuntu 23.04+; older distros: see cli.github.com)*<br>`gh auth login` | gh auth login signs in through the browser and stores credentials that git push uses too. |
+| **SSH key for GitHub** | `ssh-keygen -t ed25519 -C "you@example.com"`<br>`Get-Service ssh-agent \| Set-Service -StartupType Automatic; Start-Service ssh-agent` *(PowerShell, 🔒 admin)*<br>`ssh-add $env:USERPROFILE\.ssh\id_ed25519` *(PowerShell)*<br>`gh ssh-key add ~/.ssh/id_ed25519.pub` | `ssh-keygen -t ed25519 -C "you@example.com"`<br>`ssh-add --apple-use-keychain ~/.ssh/id_ed25519`<br>`gh ssh-key add ~/.ssh/id_ed25519.pub` | `ssh-keygen -t ed25519 -C "you@example.com"`<br>`eval "$(ssh-agent -s)"; ssh-add ~/.ssh/id_ed25519`<br>`gh ssh-key add ~/.ssh/id_ed25519.pub` | Test with ssh -T git@github.com. The Windows ssh-agent service is off by default. |
+| **Node.js** | `winget install OpenJS.NodeJS.LTS`<br>`winget install Schniz.fnm` *(version manager)*<br>`node -v; npm -v` | `brew install node`<br>`brew install fnm` *(version manager)* | `curl -fsSL https://fnm.vercel.app/install \| bash` *(version manager)*<br>`fnm install --lts`<br>*(distro packages are often years old)* | A version manager such as fnm or nvm lets you switch Node versions per project. |
+| **Python** | `winget install Python.Python.3.12`<br>`python --version`<br>`py -3` *(launcher; picks an installed version)* | `brew install python`<br>`python3 --version` | `sudo apt install python3 python3-pip python3-venv`<br>`python3 --version` | Per-project environment: python -m venv .venv, then .venv\Scripts\activate (Windows) or source .venv/bin/activate. |
+| **VS Code** | `winget install Microsoft.VisualStudioCode`<br>`code .` *(open the current folder)* | `brew install --cask visual-studio-code`<br>`code .` *(first run Shell Command: Install code from the Command Palette)* | `sudo snap install code --classic`<br>*(or the .deb / .rpm from code.visualstudio.com)*<br>`code .` |  |
+| **PowerShell 7 and Windows Terminal** | `winget install Microsoft.PowerShell`<br>`winget install Microsoft.WindowsTerminal`<br>`pwsh` *(start PowerShell 7)* | `brew install --cask powershell`<br>`pwsh` | *(see Microsoft's install page for your distro)*<br>`pwsh` | Windows PowerShell 5.1 is built in. PowerShell 7 (pwsh) is the current cross-platform version and installs alongside it. Windows 11 already includes Windows Terminal. |
+| **Compilers and build tools** | `winget install Microsoft.VisualStudio.2022.BuildTools`<br>*(choose "Desktop development with C++" in the installer)* | `xcode-select --install` | `sudo apt install build-essential`<br>`sudo dnf groupinstall "Development Tools"` | Needed by npm and pip packages that compile native code. |
+| **Docker** | `winget install Docker.DockerDesktop`<br>`docker run hello-world` | `brew install --cask docker`<br>`docker run hello-world` | `curl -fsSL https://get.docker.com \| sh`<br>`sudo usermod -aG docker $USER` *(then log out and in)*<br>`docker run hello-world` | Docker Desktop on Windows runs on WSL 2, so install WSL first. |
+| **Allow PowerShell scripts** | `Set-ExecutionPolicy RemoteSigned -Scope CurrentUser` *(PowerShell)*<br>`Get-ExecutionPolicy -List` | *(not needed)* | *(not needed)* | Fixes "running scripts is disabled on this system". RemoteSigned runs local scripts and signed downloads only. |
+| **Check what is installed** | `winget list`<br>`git --version; node -v; python --version; code -v`<br>`where git` *(path to the executable)* | `brew list`<br>`git --version; node -v; python3 --version`<br>`which git` | `apt list --installed 2>/dev/null \| grep -i git`<br>`git --version; node -v; python3 --version`<br>`which git` | After installing anything, open a new terminal window. Existing shells keep the old PATH. |
+
 ## Git
 
 | Task | Command | Notes |
@@ -259,6 +277,13 @@ The commands most people use every day, in short form. Each one appears again in
 - macOS uses zsh as its default shell. Nearly everything in the Bash column works unchanged; profile files are ~/.zshrc instead of ~/.bashrc.
 - macOS ships BSD versions of many tools, so some Linux flags differ (sed -i, ls --color, du --max-depth). Commands marked (Linux) do not exist on macOS and vice versa.
 - Windows Subsystem for Linux (wsl) gives you a real Linux shell on Windows. Windows drives appear under /mnt/c.
+
+### Setting up Windows for development
+
+- Turn on Developer Mode (Settings > System > For developers). It lets you create symlinks without an admin prompt and, on Windows 11 24H2+, enables the built-in sudo.
+- Long paths: node_modules trees often exceed the 260-character limit. Run git config --global core.longpaths true, and enable "Enable Win32 long paths" in Group Policy or set LongPathsEnabled=1 under HKLM\SYSTEM\CurrentControlSet\Control\FileSystem (🔒 admin).
+- winget installs per user by default; add --scope machine (🔒 admin) to install for everyone.
+- Most installers add themselves to the PATH, but only new terminal windows see it. If a command is "not recognized" right after installing, open a new window first.
 
 ### Git on Windows
 

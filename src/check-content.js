@@ -30,16 +30,17 @@ for (const [si, s] of (sections || []).entries()) {
   titles.add(s.title);
   if (!Array.isArray(s.rows) || s.rows.length === 0) { fail(where, 'rows must be a non-empty array'); continue; }
 
-  if (s.kind !== undefined && s.kind !== 'single') fail(where, `unknown kind "${s.kind}" (omit it, or use 'single')`);
+  if (s.kind !== undefined && s.kind !== 'single' && s.kind !== 'platform') fail(where, `unknown kind "${s.kind}" (omit it, or use 'single' or 'platform')`);
   const single = s.kind === 'single';
   const fields = single ? 3 : 5;
+  const colNames = s.kind === 'platform' ? ['Windows', 'macOS', 'Linux'] : ['CMD', 'PowerShell', 'Bash'];
 
   const tasks = new Set();
   for (const [ri, r] of s.rows.entries()) {
     const rw = `${s.title} › row ${ri} (${Array.isArray(r) ? r[0] : '?'})`;
     if (!Array.isArray(r) || r.length !== fields) { fail(rw, `expected ${fields} fields, got ${Array.isArray(r) ? r.length : typeof r}`); continue; }
     const task = r[0], note = r[fields - 1];
-    const columns = single ? [['Command', r[1]]] : [['CMD', r[1]], ['PowerShell', r[2]], ['Bash', r[3]]];
+    const columns = single ? [['Command', r[1]]] : [[colNames[0], r[1]], [colNames[1], r[2]], [colNames[2], r[3]]];
     if (!isStr(task) || !task.trim()) fail(rw, 'task name must be a non-empty string');
     if (tasks.has(task)) fail(rw, `duplicate task "${task}" in this section`);
     tasks.add(task);
