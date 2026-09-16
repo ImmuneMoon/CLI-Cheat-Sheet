@@ -6,7 +6,7 @@ Windows CMD · PowerShell · Bash (Linux and macOS) · Git
 
 Also available as [HTML](CLI-Cheat-Sheet.html) (searchable, dark mode), [PDF](CLI-Cheat-Sheet.pdf) (print) and [DOCX](CLI-Cheat-Sheet.docx) (edit).
 
-**Contents:** [Everyday Essentials](#everyday-essentials) · [File and Directory Management](#file-and-directory-management) · [Disk and Storage](#disk-and-storage) · [System and User Information](#system-and-user-information) · [Processes, Services and Power](#processes-services-and-power) · [Networking and Diagnostics](#networking-and-diagnostics) · [Environment, History and Shell Basics](#environment-history-and-shell-basics) · [Text Processing and Output](#text-processing-and-output) · [Redirection and Piping](#redirection-and-piping) · [Users and Groups](#users-and-groups) · [Package Management](#package-management) · [Developer Setup](#developer-setup) · [Git](#git) · [Keyboard Shortcuts](#keyboard-shortcuts) · [Notes and Gotchas](#notes-and-gotchas)
+**Contents:** [Everyday Essentials](#everyday-essentials) · [File and Directory Management](#file-and-directory-management) · [Disk and Storage](#disk-and-storage) · [Windows Repair](#windows-repair) · [System and User Information](#system-and-user-information) · [Processes, Services and Power](#processes-services-and-power) · [Networking and Diagnostics](#networking-and-diagnostics) · [Environment, History and Shell Basics](#environment-history-and-shell-basics) · [Text Processing and Output](#text-processing-and-output) · [Redirection and Piping](#redirection-and-piping) · [Users and Groups](#users-and-groups) · [Package Management](#package-management) · [Developer Setup](#developer-setup) · [Git](#git) · [Docker](#docker) · [Keyboard Shortcuts](#keyboard-shortcuts) · [Notes and Gotchas](#notes-and-gotchas)
 
 ## Everyday Essentials
 
@@ -70,6 +70,16 @@ The commands most people use every day, in short form. Each one appears again in
 | **Format drive** | `format D: /FS:NTFS /Q` | `Format-Volume -DriveLetter D -FileSystem NTFS` | `sudo mkfs.ext4 /dev/sdb1`<br>`diskutil eraseDisk APFS Name disk2` *(macOS)* | ⚠⚠ Destroys everything on the volume. Double-check the drive letter or device name first. |
 | **Mount / map drives** | `net use Z: \\server\share` *(map network drive)*<br>`net use Z: /delete`<br>`mountvol` *(list volume mount points)* | `New-PSDrive -Name Z -PSProvider FileSystem -Root \\server\share -Persist`<br>`Mount-DiskImage file.iso`<br>`Dismount-DiskImage file.iso` | `sudo mount /dev/sdb1 /mnt/usb`<br>`sudo umount /mnt/usb`<br>`mount` *(list mounts)* |  |
 
+## Windows Repair
+
+| Task | Command | Notes |
+| --- | --- | --- |
+| **Repair system files (SFC)** | `sfc /scannow` *(scan and repair protected system files)*<br>`sfc /verifyonly` *(scan only, no repair)*<br>`sfc /scannow /offbootdir=C:\ /offwindir=C:\Windows` *(offline, from recovery)* | 🔒 Run from an elevated prompt. If SFC reports files it could not fix, run the DISM RestoreHealth step below, then run sfc /scannow again. |
+| **Repair the component store (DISM)** | `DISM /Online /Cleanup-Image /CheckHealth` *(quick flag check)*<br>`DISM /Online /Cleanup-Image /ScanHealth` *(full scan, no repair)*<br>`DISM /Online /Cleanup-Image /RestoreHealth` *(download and repair)* | 🔒 Elevated. RestoreHealth fixes the store SFC copies from, so run it first when files are corrupt. It uses Windows Update; add /Source:wim:X:\sources\install.wim:1 /LimitAccess to repair from an install image offline. |
+| **Check disk (CHKDSK)** | `chkdsk C:` *(read-only report)*<br>`chkdsk C: /F` *(fix file-system errors)*<br>`chkdsk C: /R` *(find bad sectors, implies /F)* | 🔒 Elevated. The system drive cannot be locked while Windows is running, so the check is scheduled for the next reboot. Also listed under Disk and Storage. |
+| **System Restore** | `rstrui` *(open the System Restore wizard)*<br>`Get-ComputerRestorePoint` *(PowerShell: list restore points)*<br>`Checkpoint-Computer -Description "Before change"` *(PowerShell: create one)* | 🔒 Creating or restoring needs admin. System Protection must be turned on for the drive first (System Properties > System Protection). |
+| **Boot to recovery options** | `shutdown /r /o /t 0` *(reboot into Advanced Startup)*<br>`reagentc /info` *(show recovery environment status)* | Advanced Startup leads to Startup Repair, Safe Mode, System Restore and a command prompt. Or hold Shift while clicking Restart. |
+
 ## System and User Information
 
 | Task | CMD | PowerShell | Bash | Notes |
@@ -115,6 +125,8 @@ The commands most people use every day, in short form. Each one appears again in
 | **Download file** | `curl -O https://example.com/file.zip`<br>`curl -L -o out.zip URL` *(follow redirects, custom name)*<br>`certutil -urlcache -split -f URL file.zip` *(legacy)* | `Invoke-WebRequest URL -OutFile file.zip` *(alias: iwr)*<br>`Invoke-RestMethod URL (parses JSON)` *(alias: irm)*<br>`curl.exe -O URL` | `wget URL`<br>`curl -O URL`<br>`curl -L -o out.zip URL` | In Windows PowerShell 5.1, curl is an alias of Invoke-WebRequest. Type curl.exe to get the real tool. |
 | **Test a port** | `curl -v telnet://host:443`<br>`telnet host 80` *(optional feature, off by default)* | `Test-NetConnection host -Port 443` *(alias: tnc)*<br>`tnc host -Port 443 -InformationLevel Quiet` | `nc -zv host 443`<br>`curl -v telnet://host:443`<br>`(echo > /dev/tcp/host/443) && echo open` *(Bash only)* |  |
 | **SSH and remote copy** | `ssh user@host`<br>`scp file.txt user@host:/path/`<br>`ssh -i key.pem user@host` | `ssh user@host`<br>`scp file.txt user@host:/path/`<br>`Enter-PSSession -ComputerName host` *(WinRM, Windows to Windows)* | `ssh user@host`<br>`scp file.txt user@host:/path/`<br>`rsync -avz src/ user@host:/dest/` | The OpenSSH client is built into Windows 10 1809 and later. |
+| **Wi-Fi profiles and passwords** | `netsh wlan show profiles` *(saved networks)*<br>`netsh wlan show profile name="MyWiFi" key=clear` *(reveals the password)*<br>`netsh wlan connect name="MyWiFi"` | `netsh wlan show profiles`<br>`netsh wlan show profile name="MyWiFi" key=clear \| sls Key` *(just the password line)* | `nmcli device wifi list` *(Linux)*<br>`sudo nmcli -s -g 802-11-wireless-security.psk connection show "MyWiFi"` *(Linux password)*<br>`security find-generic-password -wa "MyWiFi"` *(macOS; prompts for keychain)* | The Windows password shows as "Key Content" in the output. On Linux the psk read needs sudo; macOS prompts for your login keychain. |
+| **Firewall** | `netsh advfirewall show allprofiles`<br>`netsh advfirewall firewall add rule name="App" dir=in action=allow program="C:\app.exe" enable=yes`<br>`netsh advfirewall set allprofiles state on` | `Get-NetFirewallProfile`<br>`New-NetFirewallRule -DisplayName "App" -Direction Inbound -Action Allow -Program "C:\app.exe"`<br>`Set-NetFirewallProfile -All -Enabled True` | `sudo ufw status`<br>`sudo ufw allow 22/tcp` *(Debian/Ubuntu)*<br>`sudo firewall-cmd --add-port=8080/tcp --permanent` *(Fedora/RHEL)*<br>`sudo pfctl -sr` *(macOS rules)* | 🔒 Requires admin or sudo. ufw is the friendly front end on Ubuntu; firewalld (firewall-cmd) on Fedora/RHEL; macOS uses pf plus the Application Firewall in System Settings. |
 
 ## Environment, History and Shell Basics
 
@@ -224,6 +236,25 @@ The commands most people use every day, in short form. Each one appears again in
 | **Search** | `git grep "pattern"` *(search tracked files)*<br>`git log -S "text"` *(commits that added or removed text)*<br>`git log --grep "fix"` *(search commit messages)*<br>`git log --author="Name"` |  |
 | **Who did what** | `git shortlog -sn` *(commits per author)*<br>`git log --since="2 weeks ago"`<br>`git bisect start / git bisect good v1.0 / git bisect bad` *(find the breaking commit)* |  |
 | **Help** | `git help commit`<br>`git commit -h` *(short flag list)*<br>`git <command> --help` |  |
+
+## Docker
+
+| Task | Command | Notes |
+| --- | --- | --- |
+| **List containers** | `docker ps` *(running)*<br>`docker ps -a` *(include stopped)*<br>`docker ps -q` *(IDs only)* | On Linux, prefix with sudo or add yourself to the docker group. Docker Desktop on Windows and macOS runs the daemon for you. |
+| **List images** | `docker images`<br>`docker image ls`<br>`docker history nginx` *(layers)* |  |
+| **Run a container** | `docker run -d -p 8080:80 --name web nginx` *(detached, port map, named)*<br>`docker run -it ubuntu bash` *(interactive shell)*<br>`docker run --rm alpine echo hi` *(remove when it exits)*<br>`docker run -v ${PWD}:/app node` *(mount current folder)* | -d runs in the background, -p maps host:container ports, -v mounts a volume, --rm cleans up on exit. |
+| **Shell into a container** | `docker exec -it web bash`<br>`docker exec -it web sh` *(if bash is missing)*<br>`docker attach web` *(attach to PID 1; Ctrl+P Ctrl+Q to detach)* |  |
+| **Logs** | `docker logs web`<br>`docker logs -f web` *(follow)*<br>`docker logs --tail 50 web` |  |
+| **Stop, start, remove** | `docker stop web`<br>`docker start web`<br>`docker restart web`<br>`docker rm web` *(add -f to force)*<br>`docker rm -f $(docker ps -aq)` *(remove all ⚠)* | ⚠ The last command removes every container. |
+| **Remove images** | `docker rmi nginx`<br>`docker image rm nginx:latest`<br>`docker image prune` *(dangling)*<br>`docker image prune -a` *(all unused)* |  |
+| **Free up space** | `docker system df` *(show usage)*<br>`docker system prune` *(stopped containers, unused networks, dangling images)*<br>`docker system prune -a --volumes` *(⚠ everything unused, including volumes)* | ⚠ prune -a --volumes deletes data in unused volumes. Check docker volume ls first. |
+| **Build an image** | `docker build -t myapp .`<br>`docker build -t myapp:1.0 -f Dockerfile.prod .`<br>`docker tag myapp myrepo/myapp:1.0` | The trailing dot is the build context, the folder sent to the daemon. |
+| **Push and pull** | `docker pull redis:7`<br>`docker login`<br>`docker push myrepo/myapp:1.0` |  |
+| **Copy files** | `docker cp web:/etc/nginx/nginx.conf ./nginx.conf` *(out of the container)*<br>`docker cp ./file.txt web:/tmp/` *(into the container)* |  |
+| **Inspect and stats** | `docker inspect web` *(full JSON)*<br>`docker stats` *(live CPU and memory)*<br>`docker port web`<br>`docker top web` *(processes)* |  |
+| **Volumes and networks** | `docker volume ls`<br>`docker volume create data`<br>`docker network ls`<br>`docker network create mynet` |  |
+| **Docker Compose** | `docker compose up -d` *(start in background)*<br>`docker compose down` *(stop and remove)*<br>`docker compose ps`<br>`docker compose logs -f`<br>`docker compose build`<br>`docker compose exec web sh` | docker compose (v2, a subcommand) replaces the old docker-compose script. It reads compose.yaml or docker-compose.yml in the current folder. |
 
 ## Keyboard Shortcuts
 
