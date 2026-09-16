@@ -18,6 +18,7 @@ Windows CMD, PowerShell and Bash (Linux and macOS) commands side by side, plus G
 - Everyday essentials: the fifteen tasks most people reach for, in one short table at the top. The same rows are starred (★) in their full sections.
 - File and directory management
 - Disk and storage
+- Windows repair: SFC, DISM, CHKDSK, System Restore, recovery boot
 - System and user information
 - Processes, services and power
 - Networking and diagnostics
@@ -28,6 +29,7 @@ Windows CMD, PowerShell and Bash (Linux and macOS) commands side by side, plus G
 - Package management
 - Developer setup, by operating system: WSL, package managers, Git, GitHub CLI, SSH keys, Node.js, Python, VS Code, PowerShell 7, build tools, Docker
 - Git: setup, commits, branches, remotes, undo, stash, tags, search
+- Docker: containers, images, logs, build, push, volumes, Compose
 - Keyboard shortcuts
 - Notes and gotchas: paths, quoting, wildcards, how PowerShell differs, macOS, zsh and WSL, Git on Windows
 
