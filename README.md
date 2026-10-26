@@ -1,5 +1,11 @@
 # CLI Cheat Sheet
 
+[![Build](https://img.shields.io/github/actions/workflow/status/ImmuneMoon/CLI-Cheat-Sheet/build.yml?branch=main&label=build)](https://github.com/ImmuneMoon/CLI-Cheat-Sheet/actions)
+[![Read online](https://img.shields.io/badge/Read-online-2ea44f?logo=googlechrome&logoColor=white)](https://immunemoon.github.io/CLI-Cheat-Sheet/CLI-Cheat-Sheet.html)
+![Shells: CMD, PowerShell, Bash](https://img.shields.io/badge/Shells-CMD%20%7C%20PowerShell%20%7C%20Bash-4EAA25?logo=gnubash&logoColor=white)
+![Formats: Markdown, HTML, PDF, Word](https://img.shields.io/badge/Formats-MD%20%7C%20HTML%20%7C%20PDF%20%7C%20DOCX-blue)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
+
 Windows CMD, PowerShell and Bash (Linux and macOS) commands side by side, plus Git and a developer setup guide. Every row shows the same task in all three shells, with the flags explained and the gotchas called out.
 
 **Read it online:** [immunemoon.github.io/CLI-Cheat-Sheet](https://immunemoon.github.io/CLI-Cheat-Sheet/CLI-Cheat-Sheet.html)
