@@ -29,6 +29,18 @@ function cmdLine(line) {
 
 const lines = l => l.map(cmdLine).join('<br>');
 
+// Article (prose) sections. p/ul text already uses Markdown `code` and **bold**.
+function articleMd(blocks) {
+  let out = '';
+  for (const b of blocks) {
+    if (b.h) out += `### ${b.h}\n\n`;
+    else if (b.p) out += `${b.p}\n\n`;
+    else if (b.ul) out += b.ul.map(i => `- ${i}`).join('\n') + '\n\n';
+    else if (b.code) out += '```powershell\n' + b.code.join('\n') + '\n```\n\n';
+  }
+  return out;
+}
+
 function table(headers, rows) {
   let md = `| ${headers.join(' | ')} |\n| ${headers.map(() => '---').join(' | ')} |\n`;
   for (const r of rows) md += `| ${r.join(' | ')} |\n`;
@@ -58,6 +70,7 @@ md += '\n';
 
 for (const s of sections) {
   md += `## ${s.title}\n\n`;
+  if (s.kind === 'article') { md += articleMd(s.blocks); continue; }
   const star = task => STARRED.has(key(s.title, task)) ? '★ ' : '';
   md += s.kind === 'single'
     ? table(['Task', 'Command', 'Notes'], s.rows.map(r => [`**${cellSafe(r[0])}**`, lines(r[1]), cellSafe(r[2])]))

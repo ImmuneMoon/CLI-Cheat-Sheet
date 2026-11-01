@@ -28,9 +28,21 @@ for (const [si, s] of (sections || []).entries()) {
   if (!s || !isStr(s.title) || !s.title.trim()) { fail(where, 'missing title'); continue; }
   if (titles.has(s.title)) fail(where, 'duplicate section title');
   titles.add(s.title);
+  if (s.kind === 'article') {
+    if (!Array.isArray(s.blocks) || s.blocks.length === 0) { fail(where, 'article section needs a non-empty blocks array'); continue; }
+    s.blocks.forEach((b, bi) => {
+      const keys = b && typeof b === 'object' ? Object.keys(b) : [];
+      if (keys.length !== 1 || !['h', 'p', 'ul', 'code'].includes(keys[0])) { fail(`${where} › block ${bi}`, 'each block needs exactly one of h, p, ul or code'); return; }
+      const k = keys[0];
+      if ((k === 'h' || k === 'p') && (!isStr(b[k]) || !b[k].trim())) fail(`${where} › block ${bi}`, `${k} must be a non-empty string`);
+      if ((k === 'ul' || k === 'code') && !isStrArr(b[k])) fail(`${where} › block ${bi}`, `${k} must be a non-empty array of strings`);
+    });
+    continue;
+  }
+
   if (!Array.isArray(s.rows) || s.rows.length === 0) { fail(where, 'rows must be a non-empty array'); continue; }
 
-  if (s.kind !== undefined && s.kind !== 'single' && s.kind !== 'platform') fail(where, `unknown kind "${s.kind}" (omit it, or use 'single' or 'platform')`);
+  if (s.kind !== undefined && s.kind !== 'single' && s.kind !== 'platform') fail(where, `unknown kind "${s.kind}" (omit it, or use 'single', 'platform' or 'article')`);
   const single = s.kind === 'single';
   const fields = single ? 3 : 5;
   const colNames = s.kind === 'platform' ? ['Windows', 'macOS', 'Linux'] : ['CMD', 'PowerShell', 'Bash'];

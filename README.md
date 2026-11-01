@@ -36,6 +36,7 @@ Windows CMD, PowerShell and Bash (Linux and macOS) commands side by side, plus G
 - Developer setup, by operating system: WSL, package managers, Git, GitHub CLI, SSH keys, Node.js, Python, VS Code, PowerShell 7, build tools, Docker
 - Git: setup, commits, branches, remotes, undo, stash, tags, search
 - Docker: containers, images, logs, build, push, volumes, Compose
+- Building PowerShell one-liners: a short tutorial on telling CMD and PowerShell apart, the building blocks, quoting, robocopy as a read-only inspector, and reading disk health, with real commands broken down piece by piece
 - Keyboard shortcuts
 - Notes and gotchas: paths, quoting, wildcards, how PowerShell differs, macOS, zsh and WSL, Git on Windows
 
@@ -62,7 +63,7 @@ Each row is:
 
 A trailing `(...)` on a command is rendered as a grey italic annotation. A line that is entirely `(...)` is rendered as a note with no code.
 
-Two other section shapes exist: `kind: 'single'` for tools that are identical in every shell (Git), with rows of `[task, [commands], note]`, and `kind: 'platform'` for things that differ by operating system (Developer Setup), with rows of `[task, [windows], [macos], [linux], note]`.
+Other section shapes exist: `kind: 'single'` for tools that are identical in every shell (Git), with rows of `[task, [commands], note]`; `kind: 'platform'` for things that differ by operating system (Developer Setup), with rows of `[task, [windows], [macos], [linux], note]`; and `kind: 'article'` for a prose tutorial (Building PowerShell One-Liners), which uses `blocks` instead of `rows` — a list of `{ h }`, `{ p }`, `{ ul }` and `{ code }` blocks, where `` `backticks` `` render as inline code and `**double asterisks**` as bold. That section lives in `src/article.js` and is appended at the end of `content.js`.
 
 Notes in the Notes and Gotchas section carry tags (`cmd`, `ps`, `bash`, or a single-column section such as `git`) so the HTML can hide the ones that do not apply to the shells currently shown. A whole group takes one tag list; a single bullet can narrow it with `[text, tags]`.
 

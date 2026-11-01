@@ -56,6 +56,22 @@ const singleRows = rows => table(['Task', 'Command', 'Notes'], rows, r => [
   `<td class="note">${esc(r[2])}</td>`,
 ], 'single');
 
+// Article (prose) sections: inline `code` and **bold**, then block rendering.
+const inlineHtml = text => esc(text)
+  .replace(/`([^`]+)`/g, '<code>$1</code>')
+  .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+
+function articleBlocks(blocks) {
+  let out = '<div class="article">';
+  for (const b of blocks) {
+    if (b.h) out += `<h3>${inlineHtml(b.h)}</h3>`;
+    else if (b.p) out += `<p>${inlineHtml(b.p)}</p>`;
+    else if (b.ul) out += '<ul>' + b.ul.map(i => `<li>${inlineHtml(i)}</li>`).join('') + '</ul>';
+    else if (b.code) out += `<pre><code>${b.code.map(esc).join('\n')}</code></pre>`;
+  }
+  return out + '</div>';
+}
+
 const shortcutRows = rows => table(['Action', 'CMD', 'PowerShell', 'Bash', 'Notes'], rows, r => [
   `<td class="task">${esc(r[0])}</td>`,
   `<td>${cmdLine(r[1])}</td>`, `<td>${cmdLine(r[2])}</td>`, `<td>${cmdLine(r[3])}</td>`,
@@ -70,8 +86,12 @@ const sectionHideCss = singleSections.map(s => `body.hide-${slug(s.title)} #${sl
 let body = '';
 body += `<section id="everyday-essentials" class="multi-section"><h2>Everyday Essentials</h2><p class="lead">The commands most people use every day, in short form. Click a task name for the full entry with more options and notes.</p>${essentialRows(resolveEssentials(sections, essentials))}</section>`;
 const tableFor = s => s.kind === 'single' ? singleRows(s.rows) : s.kind === 'platform' ? platformRows(s.rows, s.title) : commandRows(s.rows, s.title);
-for (const s of sections) body += `<section id="${slug(s.title)}"${s.kind === 'single' ? '' : ' class="multi-section"'}><h2>${esc(s.title)}</h2>${tableFor(s)}</section>`;
-const multiTitles = new Set(['Everyday Essentials', ...sections.filter(s => s.kind !== 'single').map(s => s.title)]);
+const standalone = s => s.kind === 'single' || s.kind === 'article'; // no shell-column toggle, never hidden by them
+for (const s of sections) {
+  const inner = s.kind === 'article' ? articleBlocks(s.blocks) : tableFor(s);
+  body += `<section id="${slug(s.title)}"${standalone(s) ? '' : ' class="multi-section"'}><h2>${esc(s.title)}</h2>${inner}</section>`;
+}
+const multiTitles = new Set(['Everyday Essentials', ...sections.filter(s => !standalone(s)).map(s => s.title)]);
 body += `<section id="keyboard-shortcuts"><h2>Keyboard Shortcuts</h2>${shortcutRows(shortcuts)}</section>`;
 body += '<section id="notes-and-gotchas"><h2>Notes and Gotchas</h2><div class="notes">';
 for (const g of normalizeNotes(notes)) {
@@ -135,6 +155,13 @@ tbody code.copied::after{content:"Copied";position:absolute;left:0;bottom:calc(1
 .notegroup{break-inside:avoid;margin-bottom:10px}
 .notes ul{margin:0;padding-left:20px}
 .notes li{margin:0 0 4px;font-size:13.5px}
+.article{max-width:1100px}
+.article h3{margin:16px 0 4px}
+.article p{font-size:13.5px;margin:6px 0}
+.article ul{margin:4px 0 10px;padding-left:22px}
+.article li{font-size:13.5px;margin:0 0 4px}
+.article pre{background:var(--codebg);border:1px solid var(--border);border-radius:5px;padding:8px 10px;margin:6px 0 12px;overflow-x:auto}
+.article pre code{background:none;padding:0;color:var(--code);white-space:pre-wrap;overflow-wrap:anywhere;font-size:12.5px;line-height:1.5}
 tr.hide{display:none}
 footer{margin-top:32px;color:var(--muted);font-size:12px}
 @page{size:letter landscape;margin:0.5in}
@@ -154,6 +181,9 @@ footer{margin-top:32px;color:var(--muted);font-size:12px}
   th{background:var(--head)!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   tbody tr:nth-child(even){background:var(--zebra)!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .notes{columns:3}
+  .article{max-width:none}
+  .article h3{page-break-after:avoid}
+  .article pre{page-break-inside:avoid}
   a{color:inherit}
 }`;
 

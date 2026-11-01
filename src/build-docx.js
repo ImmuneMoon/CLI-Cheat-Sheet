@@ -55,6 +55,36 @@ function noteParagraph(text) {
   return new Paragraph({ children: runs(text, { size: SMALL }), spacing: { after: 0, line: 240 } });
 }
 
+// Article (prose) sections: `code` and **bold** inside paragraph/bullet text.
+function inlineRuns(text, base = {}) {
+  const out = [];
+  const re = /`([^`]+)`|\*\*([^*]+)\*\*/g;
+  let last = 0, m;
+  while ((m = re.exec(text))) {
+    if (m.index > last) out.push(...runs(text.slice(last, m.index), base));
+    if (m[1] != null) out.push(new TextRun({ text: m[1], font: MONO, size: CODE, color: C_CODE }));
+    else out.push(...runs(m[2], { ...base, bold: true }));
+    last = re.lastIndex;
+  }
+  if (last < text.length) out.push(...runs(text.slice(last), base));
+  return out;
+}
+
+function articleParagraphs(blocks) {
+  const out = [];
+  for (const b of blocks) {
+    if (b.h) out.push(new Paragraph({ heading: HeadingLevel.HEADING_3, keepNext: true, spacing: { before: 180, after: 50 }, children: [new TextRun({ text: b.h })] }));
+    else if (b.p) out.push(new Paragraph({ spacing: { after: 90, line: 264 }, children: inlineRuns(b.p) }));
+    else if (b.ul) for (const it of b.ul) out.push(new Paragraph({ numbering: { reference: 'bullets', level: 0 }, spacing: { after: 30, line: 252 }, children: inlineRuns(it) }));
+    else if (b.code) b.code.forEach((ln, i) => out.push(new Paragraph({
+      shading: { fill: 'F6F7F9', type: ShadingType.CLEAR, color: 'auto' },
+      spacing: { before: i === 0 ? 70 : 0, after: i === b.code.length - 1 ? 100 : 0, line: 240 },
+      children: [new TextRun({ text: ln || ' ', font: MONO, size: CODE, color: C_CODE })],
+    })));
+  }
+  return out;
+}
+
 function cell(children, width, opts = {}) {
   return new TableCell({
     children, width: { size: width, type: WidthType.DXA },
@@ -173,6 +203,7 @@ children.push(essentialsTable(resolveEssentials(sections, essentials)));
 
 for (const s of sections) {
   children.push(h2(s.title));
+  if (s.kind === 'article') { children.push(...articleParagraphs(s.blocks)); continue; }
   children.push(s.kind === 'single' ? singleTable(s.rows) : commandTable(s.rows, s.title, s.kind === 'platform' ? PLATFORM_HEADERS : HEADERS));
 }
 
