@@ -411,6 +411,45 @@ PowerShell:      cmd /c 'rd /s /q "E:\$RECYCLE.BIN"'
 - In PowerShell, `rd` would be `Remove-Item` and would mis-read `$RECYCLE`, so the line wraps the real Command Prompt call in `cmd /c '...'`, using single quotes to protect the `$`.
 - ⚠ This is permanent and cannot be undone. It is here to read, not to run.
 
+### Pattern: search the end of a log
+
+A common need is to find recent events in a large log without reading the whole file. It composes the three cmdlets from section 6 into a reusable template:
+
+```powershell
+Get-Content '<path to log>' -Tail <lines to read> | Select-String '<pattern>|<other pattern>' | Select-Object -Last <matches to show>
+```
+
+A real example, pulling the last few Steam content events:
+
+```powershell
+Get-Content 'E:\Program Files (x86)\Steam\logs\content_log.txt' -Tail 20000 | Select-String 'update started|Validation: read' | Select-Object -Last 20
+```
+
+Built one stage at a time:
+
+- `Get-Content 'file' -Tail 20000` reads only the last 20,000 lines, so a huge log stays fast. Pick a number big enough to reach back to when the event happened. Single quotes keep spaces and `$` in the path safe.
+- `|` passes each line to the next command.
+- `Select-String 'a|b'` keeps lines matching a or b. It is a regex, so `|` means OR, and it ignores case by default; add `-CaseSensitive` if case matters.
+- `Select-Object -Last 20` keeps only the newest 20 matches, because logs are oldest-first. Without it you get every match.
+
+Useful variations:
+
+- Show surrounding lines: `Select-String 'error' -Context 2,2` (two before, two after).
+- Plain text instead of regex: `Select-String -SimpleMatch 'C:\path (x86)'`.
+- Exclude noise: `... | Where-Object { $_.Line -notmatch 'noise' }`.
+- Text only, without the match formatting: `... | ForEach-Object { $_.Line }`.
+- Search many files at once: `Select-String -Path 'C:\logs\*.log' -Pattern 'error' | Select-Object -Last 20`.
+- Count matches rather than show them: `(Select-String -Path 'file' -Pattern 'error').Count`.
+- Watch live: `Get-Content 'file' -Tail 20 -Wait | Select-String 'error'`, then Ctrl+C to stop.
+- Save results: `... | Out-File results.txt`. ⚠ Out-File overwrites an existing file; add `-Append` to add to it instead.
+
+Gotchas:
+
+- Regex special characters like `.` `(` `)` `[` `]` `\` need escaping with a backslash, or use `-SimpleMatch` to match them literally.
+- `-Tail` counts lines and `-Last` counts matches, so the two numbers are not interchangeable.
+- This is PowerShell only. Command Prompt's nearest tool is `findstr`; the Bash equivalent is `tail -n 20000 file | grep -E 'a|b' | tail -n 20`.
+- Reading a log is safe while the program is still writing to it; nothing here changes the file. Only `Out-File` writes, and it overwrites unless you add `-Append`.
+
 ## Keyboard Shortcuts
 
 | Action | CMD | PowerShell | Bash | Notes |
