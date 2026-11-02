@@ -102,7 +102,7 @@ const standalone = s => s.kind === 'single' || s.kind === 'article'; // no shell
 for (const s of sections) {
   if (s.kind === 'article') {
     // the whole section is one collapsible block; its subsections nest inside
-    body += `<section id="${slug(s.title)}"><details class="artsection" open><summary>${esc(s.title)}</summary>${articleBlocks(s.blocks)}</details></section>`;
+    body += `<section id="${slug(s.title)}"><details class="artsection"><summary>${esc(s.title)}</summary>${articleBlocks(s.blocks)}</details></section>`;
     continue;
   }
   body += `<section id="${slug(s.title)}"${standalone(s) ? '' : ' class="multi-section"'}><h2>${esc(s.title)}</h2>${tableFor(s)}</section>`;
@@ -219,6 +219,7 @@ footer{margin-top:32px;color:var(--muted);font-size:12px}
   tbody tr:nth-child(even){background:var(--zebra)!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .notes{columns:3}
   .article{max-width:none}
+  details::details-content{content-visibility:visible!important;display:block!important} /* reveal collapsed <details> when printing */
   .artsection>*,.article details.artgroup>*{display:block!important}
   .artsection>summary,.article details.artgroup>summary{page-break-after:avoid}
   .artsection>summary::before,.article details.artgroup>summary::before{content:""!important}
@@ -347,6 +348,14 @@ ${body}
     },function(){});
   });
   document.querySelectorAll('tbody code').forEach(function(c){c.title='Click to copy';});
+
+  // Printing: expand every collapsible group so the PDF is complete, then restore.
+  function allGroups(){return document.querySelectorAll('details.artsection,details.artgroup');}
+  function expandForPrint(){allGroups().forEach(function(d){d.dataset.o=d.open?'1':'0';d.open=true;});}
+  function restoreAfterPrint(){allGroups().forEach(function(d){d.open=d.dataset.o==='1';});}
+  window.addEventListener('beforeprint',expandForPrint);
+  window.addEventListener('afterprint',restoreAfterPrint);
+  if(window.matchMedia){var mq=window.matchMedia('print');(mq.addEventListener?mq.addEventListener.bind(mq,'change'):mq.addListener.bind(mq))(function(e){e.matches?expandForPrint():restoreAfterPrint();});}
 })();
 </script>
 </body>
