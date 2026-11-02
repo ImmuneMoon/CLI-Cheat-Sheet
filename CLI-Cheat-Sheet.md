@@ -1,12 +1,12 @@
 # Command Line Interface Cheat Sheet
 
-Windows CMD · PowerShell · Bash (Linux and macOS) · Git
+Windows CMD · PowerShell · Bash (Linux and macOS) · Git · Docker
 
 **How to read this sheet.** Each row shows the same task in all three shells. Commands are in `monospace`; *italics* explain flags or name an alias for the same command. 🔒 needs administrator, root or sudo. ⚠ destructive; check before running. *(Linux)* or *(macOS)* marks a command that exists only on that platform. ★ marks the everyday essentials.
 
 Also available as [HTML](CLI-Cheat-Sheet.html) (searchable, dark mode), [PDF](CLI-Cheat-Sheet.pdf) (print) and [DOCX](CLI-Cheat-Sheet.docx) (edit).
 
-**Contents:** [Everyday Essentials](#everyday-essentials) · [File and Directory Management](#file-and-directory-management) · [Disk and Storage](#disk-and-storage) · [Windows Repair](#windows-repair) · [System and User Information](#system-and-user-information) · [Processes, Services and Power](#processes-services-and-power) · [Networking and Diagnostics](#networking-and-diagnostics) · [Environment, History and Shell Basics](#environment-history-and-shell-basics) · [Text Processing and Output](#text-processing-and-output) · [Redirection and Piping](#redirection-and-piping) · [Users and Groups](#users-and-groups) · [Package Management](#package-management) · [Developer Setup](#developer-setup) · [Git](#git) · [Docker](#docker) · [Building PowerShell One-Liners](#building-powershell-one-liners) · [Building Bash One-Liners](#building-bash-one-liners) · [Building Command Prompt One-Liners](#building-command-prompt-one-liners) · [Keyboard Shortcuts](#keyboard-shortcuts) · [Notes and Gotchas](#notes-and-gotchas)
+**Contents:** [Everyday Essentials](#everyday-essentials) · [File and Directory Management](#file-and-directory-management) · [Disk and Storage](#disk-and-storage) · [Windows Repair](#windows-repair) · [System and User Information](#system-and-user-information) · [Processes, Services and Power](#processes-services-and-power) · [Networking and Diagnostics](#networking-and-diagnostics) · [Environment, History and Shell Basics](#environment-history-and-shell-basics) · [Text Processing and Output](#text-processing-and-output) · [Redirection and Piping](#redirection-and-piping) · [Users and Groups](#users-and-groups) · [Package Management](#package-management) · [Building PowerShell One-Liners](#building-powershell-one-liners) · [Building Bash One-Liners](#building-bash-one-liners) · [Building Command Prompt One-Liners](#building-command-prompt-one-liners) · [Developer Setup](#developer-setup) · [Git](#git) · [Docker](#docker) · [Keyboard Shortcuts](#keyboard-shortcuts) · [Notes and Gotchas](#notes-and-gotchas)
 
 ## Everyday Essentials
 
@@ -196,65 +196,6 @@ The commands most people use every day, in short form. Each one appears again in
 | **Install** | `winget install Git.Git`<br>`winget install --id Git.Git -e` *(exact id)* | `winget install Git.Git`<br>`choco install git -y`<br>`Install-Module PSReadLine` *(PowerShell module)* | `sudo apt install git`<br>`sudo dnf install git`<br>`brew install git`<br>`sudo pacman -S git` | 🔒 Usually needs admin or sudo. brew and per-user winget installs are the exception. |
 | **Update** | `winget upgrade` *(list available)*<br>`winget upgrade --all` | `winget upgrade --all`<br>`choco upgrade all`<br>`Update-Module` | `sudo apt update && sudo apt upgrade`<br>`sudo dnf upgrade`<br>`brew update && brew upgrade`<br>`sudo pacman -Syu` | apt update only refreshes the package index. apt upgrade does the installing. |
 | **Remove** | `winget uninstall Git.Git` | `winget uninstall Git.Git`<br>`choco uninstall git`<br>`Uninstall-Module name` | `sudo apt remove git` *(keeps config)*<br>`sudo apt purge git` *(removes config)*<br>`sudo apt autoremove` *(orphaned dependencies)*<br>`brew uninstall git` |  |
-
-## Developer Setup
-
-| Task | Windows | macOS | Linux | Notes |
-| --- | --- | --- | --- | --- |
-| **Install WSL (Linux on Windows)** | `wsl --install` *(Ubuntu by default; reboot afterwards)*<br>`wsl --install -d Debian` *(pick a distro)*<br>`wsl -l -v` *(list distros and versions)*<br>`wsl --update`<br>`wsl --shutdown`<br>`wsl` *(open the default distro)* | *(not needed; macOS is already Unix)* | *(not needed)* | 🔒 Run from an administrator prompt. Inside WSL, Windows drives are under /mnt/c and Windows tools are on the PATH, so code . opens VS Code. |
-| **Package manager** | `winget --version` *(built in on Windows 10 1709+ and 11)*<br>`winget source update`<br>*(Chocolatey is optional: see chocolatey.org/install)* | `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`<br>`brew doctor` | *(apt, dnf or pacman is already installed)*<br>`sudo apt update` *(refresh the index first)* | If winget is missing, install "App Installer" from the Microsoft Store. |
-| **Git** | `winget install --id Git.Git -e`<br>`git --version` | `xcode-select --install` *(Apple's git plus compilers)*<br>`brew install git` *(newer version)* | `sudo apt install git`<br>`sudo dnf install git` | On Windows this also installs Git Bash. |
-| **GitHub CLI** | `winget install --id GitHub.cli -e`<br>`gh auth login` | `brew install gh`<br>`gh auth login` | `sudo apt install gh` *(Ubuntu 23.04+; older distros: see cli.github.com)*<br>`gh auth login` | gh auth login signs in through the browser and stores credentials that git push uses too. |
-| **SSH key for GitHub** | `ssh-keygen -t ed25519 -C "you@example.com"`<br>`Get-Service ssh-agent \| Set-Service -StartupType Automatic; Start-Service ssh-agent` *(PowerShell, 🔒 admin)*<br>`ssh-add $env:USERPROFILE\.ssh\id_ed25519` *(PowerShell)*<br>`gh ssh-key add ~/.ssh/id_ed25519.pub` | `ssh-keygen -t ed25519 -C "you@example.com"`<br>`ssh-add --apple-use-keychain ~/.ssh/id_ed25519`<br>`gh ssh-key add ~/.ssh/id_ed25519.pub` | `ssh-keygen -t ed25519 -C "you@example.com"`<br>`eval "$(ssh-agent -s)"; ssh-add ~/.ssh/id_ed25519`<br>`gh ssh-key add ~/.ssh/id_ed25519.pub` | Test with ssh -T git@github.com. The Windows ssh-agent service is off by default. |
-| **Node.js** | `winget install OpenJS.NodeJS.LTS`<br>`winget install Schniz.fnm` *(version manager)*<br>`node -v; npm -v` | `brew install node`<br>`brew install fnm` *(version manager)* | `curl -fsSL https://fnm.vercel.app/install \| bash` *(version manager)*<br>`fnm install --lts`<br>*(distro packages are often years old)* | A version manager such as fnm or nvm lets you switch Node versions per project. |
-| **Python** | `winget install Python.Python.3.12`<br>`python --version`<br>`py -3` *(launcher; picks an installed version)* | `brew install python`<br>`python3 --version` | `sudo apt install python3 python3-pip python3-venv`<br>`python3 --version` | Per-project environment: python -m venv .venv, then .venv\Scripts\activate (Windows) or source .venv/bin/activate. |
-| **VS Code** | `winget install Microsoft.VisualStudioCode`<br>`code .` *(open the current folder)* | `brew install --cask visual-studio-code`<br>`code .` *(first run Shell Command: Install code from the Command Palette)* | `sudo snap install code --classic`<br>*(or the .deb / .rpm from code.visualstudio.com)*<br>`code .` |  |
-| **PowerShell 7 and Windows Terminal** | `winget install Microsoft.PowerShell`<br>`winget install Microsoft.WindowsTerminal`<br>`pwsh` *(start PowerShell 7)* | `brew install --cask powershell`<br>`pwsh` | *(see Microsoft's install page for your distro)*<br>`pwsh` | Windows PowerShell 5.1 is built in. PowerShell 7 (pwsh) is the current cross-platform version and installs alongside it. Windows 11 already includes Windows Terminal. |
-| **Compilers and build tools** | `winget install Microsoft.VisualStudio.2022.BuildTools`<br>*(choose "Desktop development with C++" in the installer)* | `xcode-select --install` | `sudo apt install build-essential`<br>`sudo dnf groupinstall "Development Tools"` | Needed by npm and pip packages that compile native code. |
-| **Docker** | `winget install Docker.DockerDesktop`<br>`docker run hello-world` | `brew install --cask docker`<br>`docker run hello-world` | `curl -fsSL https://get.docker.com \| sh`<br>`sudo usermod -aG docker $USER` *(then log out and in)*<br>`docker run hello-world` | Docker Desktop on Windows runs on WSL 2, so install WSL first. |
-| **Allow PowerShell scripts** | `Set-ExecutionPolicy RemoteSigned -Scope CurrentUser` *(PowerShell)*<br>`Get-ExecutionPolicy -List` | *(not needed)* | *(not needed)* | Fixes "running scripts is disabled on this system". RemoteSigned runs local scripts and signed downloads only. |
-| **Check what is installed** | `winget list`<br>`git --version; node -v; python --version; code -v`<br>`where git` *(path to the executable)* | `brew list`<br>`git --version; node -v; python3 --version`<br>`which git` | `apt list --installed 2>/dev/null \| grep -i git`<br>`git --version; node -v; python3 --version`<br>`which git` | After installing anything, open a new terminal window. Existing shells keep the old PATH. |
-
-## Git
-
-| Task | Command | Notes |
-| --- | --- | --- |
-| **One-time setup** | `git config --global user.name "Your Name"`<br>`git config --global user.email "you@example.com"`<br>`git config --global init.defaultBranch main`<br>`git config --list` *(show all settings)* | Settings live in ~/.gitconfig. Drop --global to set them for one repository only. |
-| **Start a repository** | `git init`<br>`git clone https://github.com/user/repo.git`<br>`git clone --depth 1 URL` *(latest commit only, fast)* |  |
-| **See what changed** | `git status`<br>`git status -s` *(short form)*<br>`git diff` *(unstaged changes)*<br>`git diff --staged` *(what will be committed)*<br>`git diff main..feature` *(between branches)* |  |
-| **History** | `git log --oneline --graph --all`<br>`git log -p file.txt` *(changes to one file)*<br>`git log -5 --stat`<br>`git show HEAD` *(last commit in full)*<br>`git blame file.txt` *(who changed each line)* |  |
-| **Stage and commit** | `git add file.txt`<br>`git add -A` *(everything)*<br>`git add -p` *(pick hunks interactively)*<br>`git commit -m "Message"`<br>`git commit -am "Message"` *(add tracked files and commit)*<br>`git commit --amend` *(fix the last commit)* | ⚠ Do not amend a commit you have already pushed; it rewrites history others may have. |
-| **Unstage or discard** | `git restore --staged file.txt` *(unstage, keep changes)*<br>`git restore file.txt` *(discard local changes)*<br>`git clean -fd` *(delete untracked files and folders)*<br>`git clean -n` *(dry run first)* | ⚠ restore and clean throw work away with no undo. Run git clean -n first. |
-| **Branches** | `git branch` *(list)*<br>`git branch -a` *(include remote)*<br>`git switch -c feature` *(create and switch)*<br>`git switch main`<br>`git branch -m old new` *(rename)*<br>`git branch -d feature` *(delete merged)*<br>`git branch -D feature` *(force delete)* | switch and restore replaced the overloaded checkout in Git 2.23. checkout still works everywhere. |
-| **Merge and rebase** | `git merge feature` *(merge into current branch)*<br>`git rebase main` *(replay current branch onto main)*<br>`git rebase -i HEAD~3` *(squash or reorder last 3)*<br>`git merge --abort / git rebase --abort` | Merge keeps history as it happened. Rebase makes it linear. ⚠ Never rebase commits that are already pushed and shared. |
-| **Remotes** | `git remote -v`<br>`git remote add origin https://github.com/user/repo.git`<br>`git remote set-url origin NEW_URL` |  |
-| **Push and pull** | `git push -u origin main` *(first push; sets upstream)*<br>`git push`<br>`git pull` *(fetch and merge)*<br>`git pull --rebase`<br>`git fetch` *(download without merging)*<br>`git push origin --delete feature` *(delete remote branch)* |  |
-| **Undo commits** | `git revert HEAD` *(new commit that undoes the last one; safe)*<br>`git reset --soft HEAD~1` *(uncommit, keep changes staged)*<br>`git reset --mixed HEAD~1` *(uncommit, keep changes unstaged)*<br>`git reset --hard HEAD~1` *(uncommit and discard changes)*<br>`git reflog` *(find lost commits)* | ⚠ reset --hard deletes work. revert is the safe choice for anything already pushed. reflog can recover a reset for about 30 days. |
-| **Stash** | `git stash` *(shelve changes)*<br>`git stash push -m "wip"` *(with a name)*<br>`git stash list`<br>`git stash pop` *(restore latest and drop it)*<br>`git stash apply stash@{1}`<br>`git stash drop` |  |
-| **Tags and releases** | `git tag` *(list)*<br>`git tag -a v1.0 -m "Release 1.0"`<br>`git push --tags`<br>`git checkout v1.0` *(look at a tag)* |  |
-| **Ignore and untrack files** | `git rm --cached file.txt` *(stop tracking, keep file)*<br>`git rm -r --cached folder/`<br>`git check-ignore -v file.txt` *(why is this ignored?)*<br>`git mv old.txt new.txt` *(rename and stage)* | Patterns in .gitignore only affect files not yet tracked. Untrack committed files with git rm --cached first. |
-| **Search** | `git grep "pattern"` *(search tracked files)*<br>`git log -S "text"` *(commits that added or removed text)*<br>`git log --grep "fix"` *(search commit messages)*<br>`git log --author="Name"` |  |
-| **Who did what** | `git shortlog -sn` *(commits per author)*<br>`git log --since="2 weeks ago"`<br>`git bisect start / git bisect good v1.0 / git bisect bad` *(find the breaking commit)* |  |
-| **Help** | `git help commit`<br>`git commit -h` *(short flag list)*<br>`git <command> --help` |  |
-
-## Docker
-
-| Task | Command | Notes |
-| --- | --- | --- |
-| **List containers** | `docker ps` *(running)*<br>`docker ps -a` *(include stopped)*<br>`docker ps -q` *(IDs only)* | On Linux, prefix with sudo or add yourself to the docker group. Docker Desktop on Windows and macOS runs the daemon for you. |
-| **List images** | `docker images`<br>`docker image ls`<br>`docker history nginx` *(layers)* |  |
-| **Run a container** | `docker run -d -p 8080:80 --name web nginx` *(detached, port map, named)*<br>`docker run -it ubuntu bash` *(interactive shell)*<br>`docker run --rm alpine echo hi` *(remove when it exits)*<br>`docker run -v ${PWD}:/app node` *(mount current folder)* | -d runs in the background, -p maps host:container ports, -v mounts a volume, --rm cleans up on exit. |
-| **Shell into a container** | `docker exec -it web bash`<br>`docker exec -it web sh` *(if bash is missing)*<br>`docker attach web` *(attach to PID 1; Ctrl+P Ctrl+Q to detach)* |  |
-| **Logs** | `docker logs web`<br>`docker logs -f web` *(follow)*<br>`docker logs --tail 50 web` |  |
-| **Stop, start, remove** | `docker stop web`<br>`docker start web`<br>`docker restart web`<br>`docker rm web` *(add -f to force)*<br>`docker rm -f $(docker ps -aq)` *(remove all ⚠)* | ⚠ The last command removes every container. |
-| **Remove images** | `docker rmi nginx`<br>`docker image rm nginx:latest`<br>`docker image prune` *(dangling)*<br>`docker image prune -a` *(all unused)* |  |
-| **Free up space** | `docker system df` *(show usage)*<br>`docker system prune` *(stopped containers, unused networks, dangling images)*<br>`docker system prune -a --volumes` *(⚠ everything unused, including volumes)* | ⚠ prune -a --volumes deletes data in unused volumes. Check docker volume ls first. |
-| **Build an image** | `docker build -t myapp .`<br>`docker build -t myapp:1.0 -f Dockerfile.prod .`<br>`docker tag myapp myrepo/myapp:1.0` | The trailing dot is the build context, the folder sent to the daemon. |
-| **Push and pull** | `docker pull redis:7`<br>`docker login`<br>`docker push myrepo/myapp:1.0` |  |
-| **Copy files** | `docker cp web:/etc/nginx/nginx.conf ./nginx.conf` *(out of the container)*<br>`docker cp ./file.txt web:/tmp/` *(into the container)* |  |
-| **Inspect and stats** | `docker inspect web` *(full JSON)*<br>`docker stats` *(live CPU and memory)*<br>`docker port web`<br>`docker top web` *(processes)* |  |
-| **Volumes and networks** | `docker volume ls`<br>`docker volume create data`<br>`docker network ls`<br>`docker network create mynet` |  |
-| **Docker Compose** | `docker compose up -d` *(start in background)*<br>`docker compose down` *(stop and remove)*<br>`docker compose ps`<br>`docker compose logs -f`<br>`docker compose build`<br>`docker compose exec web sh` | docker compose (v2, a subcommand) replaces the old docker-compose script. It reads compose.yaml or docker-compose.yml in the current folder. |
 
 ## Building PowerShell One-Liners
 
@@ -609,6 +550,65 @@ for /f "delims=" %i in ('dir /b /s *.tmp') do @del "%i"
 
 - `dir /b /s *.tmp` lists bare, recursive full paths; `for /f` feeds each to the action.
 - ⚠ The second line is permanent. The `@echo` dry run is the whole safety habit; always run it first.
+
+## Developer Setup
+
+| Task | Windows | macOS | Linux | Notes |
+| --- | --- | --- | --- | --- |
+| **Install WSL (Linux on Windows)** | `wsl --install` *(Ubuntu by default; reboot afterwards)*<br>`wsl --install -d Debian` *(pick a distro)*<br>`wsl -l -v` *(list distros and versions)*<br>`wsl --update`<br>`wsl --shutdown`<br>`wsl` *(open the default distro)* | *(not needed; macOS is already Unix)* | *(not needed)* | 🔒 Run from an administrator prompt. Inside WSL, Windows drives are under /mnt/c and Windows tools are on the PATH, so code . opens VS Code. |
+| **Package manager** | `winget --version` *(built in on Windows 10 1709+ and 11)*<br>`winget source update`<br>*(Chocolatey is optional: see chocolatey.org/install)* | `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`<br>`brew doctor` | *(apt, dnf or pacman is already installed)*<br>`sudo apt update` *(refresh the index first)* | If winget is missing, install "App Installer" from the Microsoft Store. |
+| **Git** | `winget install --id Git.Git -e`<br>`git --version` | `xcode-select --install` *(Apple's git plus compilers)*<br>`brew install git` *(newer version)* | `sudo apt install git`<br>`sudo dnf install git` | On Windows this also installs Git Bash. |
+| **GitHub CLI** | `winget install --id GitHub.cli -e`<br>`gh auth login` | `brew install gh`<br>`gh auth login` | `sudo apt install gh` *(Ubuntu 23.04+; older distros: see cli.github.com)*<br>`gh auth login` | gh auth login signs in through the browser and stores credentials that git push uses too. |
+| **SSH key for GitHub** | `ssh-keygen -t ed25519 -C "you@example.com"`<br>`Get-Service ssh-agent \| Set-Service -StartupType Automatic; Start-Service ssh-agent` *(PowerShell, 🔒 admin)*<br>`ssh-add $env:USERPROFILE\.ssh\id_ed25519` *(PowerShell)*<br>`gh ssh-key add ~/.ssh/id_ed25519.pub` | `ssh-keygen -t ed25519 -C "you@example.com"`<br>`ssh-add --apple-use-keychain ~/.ssh/id_ed25519`<br>`gh ssh-key add ~/.ssh/id_ed25519.pub` | `ssh-keygen -t ed25519 -C "you@example.com"`<br>`eval "$(ssh-agent -s)"; ssh-add ~/.ssh/id_ed25519`<br>`gh ssh-key add ~/.ssh/id_ed25519.pub` | Test with ssh -T git@github.com. The Windows ssh-agent service is off by default. |
+| **Node.js** | `winget install OpenJS.NodeJS.LTS`<br>`winget install Schniz.fnm` *(version manager)*<br>`node -v; npm -v` | `brew install node`<br>`brew install fnm` *(version manager)* | `curl -fsSL https://fnm.vercel.app/install \| bash` *(version manager)*<br>`fnm install --lts`<br>*(distro packages are often years old)* | A version manager such as fnm or nvm lets you switch Node versions per project. |
+| **Python** | `winget install Python.Python.3.12`<br>`python --version`<br>`py -3` *(launcher; picks an installed version)* | `brew install python`<br>`python3 --version` | `sudo apt install python3 python3-pip python3-venv`<br>`python3 --version` | Per-project environment: python -m venv .venv, then .venv\Scripts\activate (Windows) or source .venv/bin/activate. |
+| **VS Code** | `winget install Microsoft.VisualStudioCode`<br>`code .` *(open the current folder)* | `brew install --cask visual-studio-code`<br>`code .` *(first run Shell Command: Install code from the Command Palette)* | `sudo snap install code --classic`<br>*(or the .deb / .rpm from code.visualstudio.com)*<br>`code .` |  |
+| **PowerShell 7 and Windows Terminal** | `winget install Microsoft.PowerShell`<br>`winget install Microsoft.WindowsTerminal`<br>`pwsh` *(start PowerShell 7)* | `brew install --cask powershell`<br>`pwsh` | *(see Microsoft's install page for your distro)*<br>`pwsh` | Windows PowerShell 5.1 is built in. PowerShell 7 (pwsh) is the current cross-platform version and installs alongside it. Windows 11 already includes Windows Terminal. |
+| **Compilers and build tools** | `winget install Microsoft.VisualStudio.2022.BuildTools`<br>*(choose "Desktop development with C++" in the installer)* | `xcode-select --install` | `sudo apt install build-essential`<br>`sudo dnf groupinstall "Development Tools"` | Needed by npm and pip packages that compile native code. |
+| **Docker** | `winget install Docker.DockerDesktop`<br>`docker run hello-world` | `brew install --cask docker`<br>`docker run hello-world` | `curl -fsSL https://get.docker.com \| sh`<br>`sudo usermod -aG docker $USER` *(then log out and in)*<br>`docker run hello-world` | Docker Desktop on Windows runs on WSL 2, so install WSL first. |
+| **Allow PowerShell scripts** | `Set-ExecutionPolicy RemoteSigned -Scope CurrentUser` *(PowerShell)*<br>`Get-ExecutionPolicy -List` | *(not needed)* | *(not needed)* | Fixes "running scripts is disabled on this system". RemoteSigned runs local scripts and signed downloads only. |
+| **Check what is installed** | `winget list`<br>`git --version; node -v; python --version; code -v`<br>`where git` *(path to the executable)* | `brew list`<br>`git --version; node -v; python3 --version`<br>`which git` | `apt list --installed 2>/dev/null \| grep -i git`<br>`git --version; node -v; python3 --version`<br>`which git` | After installing anything, open a new terminal window. Existing shells keep the old PATH. |
+
+## Git
+
+| Task | Command | Notes |
+| --- | --- | --- |
+| **One-time setup** | `git config --global user.name "Your Name"`<br>`git config --global user.email "you@example.com"`<br>`git config --global init.defaultBranch main`<br>`git config --list` *(show all settings)* | Settings live in ~/.gitconfig. Drop --global to set them for one repository only. |
+| **Start a repository** | `git init`<br>`git clone https://github.com/user/repo.git`<br>`git clone --depth 1 URL` *(latest commit only, fast)* |  |
+| **See what changed** | `git status`<br>`git status -s` *(short form)*<br>`git diff` *(unstaged changes)*<br>`git diff --staged` *(what will be committed)*<br>`git diff main..feature` *(between branches)* |  |
+| **History** | `git log --oneline --graph --all`<br>`git log -p file.txt` *(changes to one file)*<br>`git log -5 --stat`<br>`git show HEAD` *(last commit in full)*<br>`git blame file.txt` *(who changed each line)* |  |
+| **Stage and commit** | `git add file.txt`<br>`git add -A` *(everything)*<br>`git add -p` *(pick hunks interactively)*<br>`git commit -m "Message"`<br>`git commit -am "Message"` *(add tracked files and commit)*<br>`git commit --amend` *(fix the last commit)* | ⚠ Do not amend a commit you have already pushed; it rewrites history others may have. |
+| **Unstage or discard** | `git restore --staged file.txt` *(unstage, keep changes)*<br>`git restore file.txt` *(discard local changes)*<br>`git clean -fd` *(delete untracked files and folders)*<br>`git clean -n` *(dry run first)* | ⚠ restore and clean throw work away with no undo. Run git clean -n first. |
+| **Branches** | `git branch` *(list)*<br>`git branch -a` *(include remote)*<br>`git switch -c feature` *(create and switch)*<br>`git switch main`<br>`git branch -m old new` *(rename)*<br>`git branch -d feature` *(delete merged)*<br>`git branch -D feature` *(force delete)* | switch and restore replaced the overloaded checkout in Git 2.23. checkout still works everywhere. |
+| **Merge and rebase** | `git merge feature` *(merge into current branch)*<br>`git rebase main` *(replay current branch onto main)*<br>`git rebase -i HEAD~3` *(squash or reorder last 3)*<br>`git merge --abort / git rebase --abort` | Merge keeps history as it happened. Rebase makes it linear. ⚠ Never rebase commits that are already pushed and shared. |
+| **Remotes** | `git remote -v`<br>`git remote add origin https://github.com/user/repo.git`<br>`git remote set-url origin NEW_URL` |  |
+| **Push and pull** | `git push -u origin main` *(first push; sets upstream)*<br>`git push`<br>`git pull` *(fetch and merge)*<br>`git pull --rebase`<br>`git fetch` *(download without merging)*<br>`git push origin --delete feature` *(delete remote branch)* |  |
+| **Undo commits** | `git revert HEAD` *(new commit that undoes the last one; safe)*<br>`git reset --soft HEAD~1` *(uncommit, keep changes staged)*<br>`git reset --mixed HEAD~1` *(uncommit, keep changes unstaged)*<br>`git reset --hard HEAD~1` *(uncommit and discard changes)*<br>`git reflog` *(find lost commits)* | ⚠ reset --hard deletes work. revert is the safe choice for anything already pushed. reflog can recover a reset for about 30 days. |
+| **Stash** | `git stash` *(shelve changes)*<br>`git stash push -m "wip"` *(with a name)*<br>`git stash list`<br>`git stash pop` *(restore latest and drop it)*<br>`git stash apply stash@{1}`<br>`git stash drop` |  |
+| **Tags and releases** | `git tag` *(list)*<br>`git tag -a v1.0 -m "Release 1.0"`<br>`git push --tags`<br>`git checkout v1.0` *(look at a tag)* |  |
+| **Ignore and untrack files** | `git rm --cached file.txt` *(stop tracking, keep file)*<br>`git rm -r --cached folder/`<br>`git check-ignore -v file.txt` *(why is this ignored?)*<br>`git mv old.txt new.txt` *(rename and stage)* | Patterns in .gitignore only affect files not yet tracked. Untrack committed files with git rm --cached first. |
+| **Search** | `git grep "pattern"` *(search tracked files)*<br>`git log -S "text"` *(commits that added or removed text)*<br>`git log --grep "fix"` *(search commit messages)*<br>`git log --author="Name"` |  |
+| **Who did what** | `git shortlog -sn` *(commits per author)*<br>`git log --since="2 weeks ago"`<br>`git bisect start / git bisect good v1.0 / git bisect bad` *(find the breaking commit)* |  |
+| **Help** | `git help commit`<br>`git commit -h` *(short flag list)*<br>`git <command> --help` |  |
+
+## Docker
+
+| Task | Command | Notes |
+| --- | --- | --- |
+| **List containers** | `docker ps` *(running)*<br>`docker ps -a` *(include stopped)*<br>`docker ps -q` *(IDs only)* | On Linux, prefix with sudo or add yourself to the docker group. Docker Desktop on Windows and macOS runs the daemon for you. |
+| **List images** | `docker images`<br>`docker image ls`<br>`docker history nginx` *(layers)* |  |
+| **Run a container** | `docker run -d -p 8080:80 --name web nginx` *(detached, port map, named)*<br>`docker run -it ubuntu bash` *(interactive shell)*<br>`docker run --rm alpine echo hi` *(remove when it exits)*<br>`docker run -v ${PWD}:/app node` *(mount current folder)* | -d runs in the background, -p maps host:container ports, -v mounts a volume, --rm cleans up on exit. |
+| **Shell into a container** | `docker exec -it web bash`<br>`docker exec -it web sh` *(if bash is missing)*<br>`docker attach web` *(attach to PID 1; Ctrl+P Ctrl+Q to detach)* |  |
+| **Logs** | `docker logs web`<br>`docker logs -f web` *(follow)*<br>`docker logs --tail 50 web` |  |
+| **Stop, start, remove** | `docker stop web`<br>`docker start web`<br>`docker restart web`<br>`docker rm web` *(add -f to force)*<br>`docker rm -f $(docker ps -aq)` *(remove all ⚠)* | ⚠ The last command removes every container. |
+| **Remove images** | `docker rmi nginx`<br>`docker image rm nginx:latest`<br>`docker image prune` *(dangling)*<br>`docker image prune -a` *(all unused)* |  |
+| **Free up space** | `docker system df` *(show usage)*<br>`docker system prune` *(stopped containers, unused networks, dangling images)*<br>`docker system prune -a --volumes` *(⚠ everything unused, including volumes)* | ⚠ prune -a --volumes deletes data in unused volumes. Check docker volume ls first. |
+| **Build an image** | `docker build -t myapp .`<br>`docker build -t myapp:1.0 -f Dockerfile.prod .`<br>`docker tag myapp myrepo/myapp:1.0` | The trailing dot is the build context, the folder sent to the daemon. |
+| **Push and pull** | `docker pull redis:7`<br>`docker login`<br>`docker push myrepo/myapp:1.0` |  |
+| **Copy files** | `docker cp web:/etc/nginx/nginx.conf ./nginx.conf` *(out of the container)*<br>`docker cp ./file.txt web:/tmp/` *(into the container)* |  |
+| **Inspect and stats** | `docker inspect web` *(full JSON)*<br>`docker stats` *(live CPU and memory)*<br>`docker port web`<br>`docker top web` *(processes)* |  |
+| **Volumes and networks** | `docker volume ls`<br>`docker volume create data`<br>`docker network ls`<br>`docker network create mynet` |  |
+| **Docker Compose** | `docker compose up -d` *(start in background)*<br>`docker compose down` *(stop and remove)*<br>`docker compose ps`<br>`docker compose logs -f`<br>`docker compose build`<br>`docker compose exec web sh` | docker compose (v2, a subcommand) replaces the old docker-compose script. It reads compose.yaml or docker-compose.yml in the current folder. |
 
 ## Keyboard Shortcuts
 
