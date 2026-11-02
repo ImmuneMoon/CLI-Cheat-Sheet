@@ -849,7 +849,9 @@ const essentials = [
   ['Environment, History and Shell Basics', 'Get help'],
 ];
 
-// Teaching section (prose/code), kept in its own file; appears after Docker.
+// Teaching sections (prose/code), kept in their own files; appear after Docker.
 sections.push(require('./article.js'));
+sections.push(require('./article-bash.js'));
+sections.push(require('./article-cmd.js'));
 
 module.exports = { sections, shortcuts, notes, essentials };

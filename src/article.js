@@ -172,11 +172,15 @@ module.exports = { title: 'Building PowerShell One-Liners', kind: 'article', blo
     "Watch live: `Get-Content 'file' -Tail 20 -Wait | Select-String 'error'`, then Ctrl+C to stop.",
     "Save results: `... | Out-File results.txt`. ⚠ Out-File overwrites an existing file; add `-Append` to add to it instead.",
   ] },
+  { p: "The same idea in Bash, with the full walkthrough in the Building Bash One-Liners section:" },
+  { code: [
+    `tail -n 20000 'file.log' | grep -E 'update started|Validation: read' | tail -n 20`,
+  ] },
   { p: "Gotchas:" },
   { ul: [
     "Regex special characters like `.` `(` `)` `[` `]` `\\` need escaping with a backslash, or use `-SimpleMatch` to match them literally.",
     "`-Tail` counts lines and `-Last` counts matches, so the two numbers are not interchangeable.",
-    "This is PowerShell only. Command Prompt's nearest tool is `findstr`; the Bash equivalent is `tail -n 20000 file | grep -E 'a|b' | tail -n 20`.",
+    "This is PowerShell only. Command Prompt has no tail-then-filter equivalent (its nearest tool is `findstr`); the Bash form is the line above. See the Building Bash One-Liners and Building Command Prompt One-Liners sections.",
     "Reading a log is safe while the program is still writing to it; nothing here changes the file. Only `Out-File` writes, and it overwrites unless you add `-Append`.",
   ] },
 ] };

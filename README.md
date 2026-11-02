@@ -37,6 +37,8 @@ Windows CMD, PowerShell and Bash (Linux and macOS) commands side by side, plus G
 - Git: setup, commits, branches, remotes, undo, stash, tags, search
 - Docker: containers, images, logs, build, push, volumes, Compose
 - Building PowerShell one-liners: a short tutorial on telling CMD and PowerShell apart, the building blocks, quoting, robocopy as a read-only inspector, and reading disk health, with real commands broken down piece by piece
+- Building Bash one-liners: the same, for Bash (Linux, macOS, WSL) — building blocks, quoting and globbing, text filters, the log-search pattern, and a safe-delete worked example
+- Building Command Prompt one-liners: what cmd.exe can and cannot do — for /f, findstr, chaining, and a dry-run-first delete example
 - Keyboard shortcuts
 - Notes and gotchas: paths, quoting, wildcards, how PowerShell differs, macOS, zsh and WSL, Git on Windows
 
@@ -63,7 +65,7 @@ Each row is:
 
 A trailing `(...)` on a command is rendered as a grey italic annotation. A line that is entirely `(...)` is rendered as a note with no code.
 
-Other section shapes exist: `kind: 'single'` for tools that are identical in every shell (Git), with rows of `[task, [commands], note]`; `kind: 'platform'` for things that differ by operating system (Developer Setup), with rows of `[task, [windows], [macos], [linux], note]`; and `kind: 'article'` for a prose tutorial (Building PowerShell One-Liners), which uses `blocks` instead of `rows` — a list of `{ h }`, `{ p }`, `{ ul }` and `{ code }` blocks, where `` `backticks` `` render as inline code and `**double asterisks**` as bold. That section lives in `src/article.js` and is appended at the end of `content.js`.
+Other section shapes exist: `kind: 'single'` for tools that are identical in every shell (Git), with rows of `[task, [commands], note]`; `kind: 'platform'` for things that differ by operating system (Developer Setup), with rows of `[task, [windows], [macos], [linux], note]`; and `kind: 'article'` for a prose tutorial, which uses `blocks` instead of `rows` — a list of `{ h }`, `{ p }`, `{ ul }` and `{ code }` blocks, where `` `backticks` `` render as inline code and `**double asterisks**` as bold. In the HTML the whole article and each `{ h }` subsection are collapsible. The three article sections live in `src/article.js` (PowerShell), `src/article-bash.js` and `src/article-cmd.js`, appended at the end of `content.js`.
 
 Notes in the Notes and Gotchas section carry tags (`cmd`, `ps`, `bash`, or a single-column section such as `git`) so the HTML can hide the ones that do not apply to the shells currently shown. A whole group takes one tag list; a single bullet can narrow it with `[text, tags]`.
 
