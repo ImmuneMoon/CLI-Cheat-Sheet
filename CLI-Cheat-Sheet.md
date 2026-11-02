@@ -6,7 +6,7 @@ Windows CMD · PowerShell · Bash (Linux and macOS) · Git
 
 Also available as [HTML](CLI-Cheat-Sheet.html) (searchable, dark mode), [PDF](CLI-Cheat-Sheet.pdf) (print) and [DOCX](CLI-Cheat-Sheet.docx) (edit).
 
-**Contents:** [Everyday Essentials](#everyday-essentials) · [File and Directory Management](#file-and-directory-management) · [Disk and Storage](#disk-and-storage) · [Windows Repair](#windows-repair) · [System and User Information](#system-and-user-information) · [Processes, Services and Power](#processes-services-and-power) · [Networking and Diagnostics](#networking-and-diagnostics) · [Environment, History and Shell Basics](#environment-history-and-shell-basics) · [Text Processing and Output](#text-processing-and-output) · [Redirection and Piping](#redirection-and-piping) · [Users and Groups](#users-and-groups) · [Package Management](#package-management) · [Developer Setup](#developer-setup) · [Git](#git) · [Docker](#docker) · [Building PowerShell One-Liners](#building-powershell-one-liners) · [Keyboard Shortcuts](#keyboard-shortcuts) · [Notes and Gotchas](#notes-and-gotchas)
+**Contents:** [Everyday Essentials](#everyday-essentials) · [File and Directory Management](#file-and-directory-management) · [Disk and Storage](#disk-and-storage) · [Windows Repair](#windows-repair) · [System and User Information](#system-and-user-information) · [Processes, Services and Power](#processes-services-and-power) · [Networking and Diagnostics](#networking-and-diagnostics) · [Environment, History and Shell Basics](#environment-history-and-shell-basics) · [Text Processing and Output](#text-processing-and-output) · [Redirection and Piping](#redirection-and-piping) · [Users and Groups](#users-and-groups) · [Package Management](#package-management) · [Developer Setup](#developer-setup) · [Git](#git) · [Docker](#docker) · [Building PowerShell One-Liners](#building-powershell-one-liners) · [Building Bash One-Liners](#building-bash-one-liners) · [Building Command Prompt One-Liners](#building-command-prompt-one-liners) · [Keyboard Shortcuts](#keyboard-shortcuts) · [Notes and Gotchas](#notes-and-gotchas)
 
 ## Everyday Essentials
 
@@ -443,12 +443,172 @@ Useful variations:
 - Watch live: `Get-Content 'file' -Tail 20 -Wait | Select-String 'error'`, then Ctrl+C to stop.
 - Save results: `... | Out-File results.txt`. ⚠ Out-File overwrites an existing file; add `-Append` to add to it instead.
 
+The same idea in Bash, with the full walkthrough in the Building Bash One-Liners section:
+
+```powershell
+tail -n 20000 'file.log' | grep -E 'update started|Validation: read' | tail -n 20
+```
+
 Gotchas:
 
 - Regex special characters like `.` `(` `)` `[` `]` `\` need escaping with a backslash, or use `-SimpleMatch` to match them literally.
 - `-Tail` counts lines and `-Last` counts matches, so the two numbers are not interchangeable.
-- This is PowerShell only. Command Prompt's nearest tool is `findstr`; the Bash equivalent is `tail -n 20000 file | grep -E 'a|b' | tail -n 20`.
+- This is PowerShell only. Command Prompt has no tail-then-filter equivalent (its nearest tool is `findstr`); the Bash form is the line above. See the Building Bash One-Liners and Building Command Prompt One-Liners sections.
 - Reading a log is safe while the program is still writing to it; nothing here changes the file. Only `Out-File` writes, and it overwrites unless you add `-Append`.
+
+## Building Bash One-Liners
+
+Bash (Linux, macOS, WSL, and Git Bash on Windows) builds one-liners by piping small text tools together. Same idea as the PowerShell section, different pieces: Bash pipes **plain text**, not objects. The reference tables above hold the individual commands; this is about assembling them.
+
+### Building blocks
+
+- `name=value` sets a variable, with **no spaces** around `=`. Read it as `$name` or `${name}`. `files=$(ls)` captures a command's output into one.
+- `|` pipes the text output of the command on the left into the command on the right.
+- `$(command)` substitutes a command's output inline; `$(( ))` does arithmetic.
+- `;` runs commands in order; `&&` runs the next only if the previous succeeded; `||` only if it failed. See **Chain commands**.
+- `for f in *.log; do ...; done` loops over items; `{ ...; }` groups commands.
+- `>` redirects output, `>>` appends, `2>` redirects errors, `> /dev/null` throws output away. See **Redirection and Piping**.
+
+### Quoting and globbing
+
+- Single quotes `'...'` are literal; double quotes `"..."` expand `$variables` and `$(...)`.
+- The shell expands `*`, `?` and `[abc]` into matching filenames **before** the command runs. Quote the pattern (`'*.log'`) when the command itself should see it, as with `find` and `grep`.
+- Always quote a variable that may contain spaces: `"$file"` survives a name like `My File.txt`; bare `$file` would split into two arguments.
+
+### Filtering and shaping text
+
+Bash pipes plain text, so you compose small filters. Each has a reference row; reach for:
+
+- `grep 'pattern'` keeps matching lines; `grep -E 'a|b'` for regex OR, `-i` ignore case, `-v` invert, `-r` recurse, `-c` count. See **Search text in files**.
+- `cut -d, -f2` and `awk '{print $2}'` pull out columns. See **Extract columns / fields**.
+- `sed 's/old/new/'` substitutes; `sort`, `uniq -c`, `head`, `tail`, `wc -l` round out the kit. See **Text Processing and Output**.
+- `xargs` turns a list into arguments: `find . -name '*.tmp' | xargs rm`. Use `find -print0 | xargs -0` so names with spaces survive.
+
+### Pattern: search the end of a log
+
+The Bash version of the PowerShell log-search pattern. Same shape, different tools:
+
+```powershell
+tail -n <lines to read> '<path to log>' | grep -E '<pattern>|<other pattern>' | tail -n <matches to show>
+```
+
+A real example:
+
+```powershell
+tail -n 20000 ~/.steam/steam/logs/content_log.txt | grep -E 'update started|Validation: read' | tail -n 20
+```
+
+- `tail -n 20000 file` reads only the last 20,000 lines, so a huge log stays fast.
+- `grep -E 'a|b'` keeps lines matching a or b; `-E` turns on extended regex where `|` means OR. It is case-sensitive by default; add `-i` to ignore case.
+- The final `tail -n 20` keeps the newest 20 matches, because logs are oldest-first.
+
+Variations:
+
+- Surrounding lines: `grep -C 2 'error'` (two each side); `-A`/`-B` for after/before only.
+- Plain text, no regex: `grep -F 'C:\path (x86)'`.
+- Exclude noise: `... | grep -v 'noise'`.
+- Many files: `grep -rE 'error' /var/log/ | tail -n 20`.
+- Count matches: `grep -c 'error' file`.
+- Watch live: `tail -f file | grep --line-buffered 'error'`, then Ctrl+C to stop.
+
+Gotchas:
+
+- `tail -n` counts lines and the final `tail` counts matched lines, so the two numbers are not interchangeable, exactly as with PowerShell's `-Tail` and `-Last`.
+- macOS ships BSD `tail`, `grep` and `sed`; `grep -E` works everywhere but some GNU-only flags differ. See **macOS, zsh and WSL** in Notes.
+- Reading a log is safe while the program writes; only `>` and `tee` change files, and `>` overwrites unless you use `>>` or `tee -a`.
+
+### Safety habits
+
+- **Look before you delete.** List first with `ls` or `find ... -print`, read it, then act.
+- ⚠ **`rm` is permanent.** There is no Trash on the command line. `rm -i` prompts per file; `rm -rf` asks nothing and cannot be undone.
+- **Preview, then apply.** Run a `find` without `-delete`, or a `sed` without `-i`, first and read the output.
+- 🔒 System paths, other users' files, and most of `/etc` need `sudo`. See **Run as admin / root**.
+
+### Worked example: delete old logs safely
+
+Grow a cleanup one-liner, previewing at every stage. First, just list what matches:
+
+```powershell
+find /var/log -name '*.log' -mtime +30
+```
+
+Read the list, then total its size before committing:
+
+```powershell
+find /var/log -name '*.log' -mtime +30 -print0 | du -ch --files0-from=- | tail -1
+```
+
+Only once you trust the list, add the delete. This cannot be undone:
+
+```powershell
+find /var/log -name '*.log' -mtime +30 -delete
+```
+
+- `-mtime +30` matches files modified more than 30 days ago; `-print0` with `--files0-from=-` handles names containing spaces.
+- ⚠ `-delete` is permanent. Running the `find` without it first, and reading the list, is the whole safety habit.
+
+## Building Command Prompt One-Liners
+
+Yes, Command Prompt (`cmd.exe`) does one-liners, but with a small toolset and quirky syntax. It pipes plain text between a handful of built-ins and has no objects, no `$(...)` substitution, and little string handling. For anything richer, use PowerShell (see **Building PowerShell One-Liners**). This covers what CMD does well and where it stops.
+
+### Building blocks
+
+- `set VAR=value` sets a variable, **no spaces** around `=`; read it as `%VAR%`. Inside a `for` loop or a parenthesised block, `%VAR%` is read once up front, so use delayed expansion `!VAR!` after `setlocal enabledelayedexpansion`.
+- `&` runs the next command regardless; `&&` runs it only if the previous succeeded; `||` only if it failed.
+- `|` pipes text between commands, but only a few understand it: `find`, `findstr`, `sort`, `more`.
+- `>` redirects output, `>>` appends, `2>` redirects errors, `2>&1` merges them, `>nul` throws output away.
+- There is no `$(...)`. To capture a command's output into a loop or variable, use `for /f` (below).
+
+### for /f: the workhorse
+
+`for /f` loops over the lines of a file, a string, or another command's output. It is how CMD parses and composes.
+
+- Over a file's fields: `for /f "tokens=2 delims=," %i in (file.csv) do @echo %i` prints the second comma-separated field of each line.
+- Over a command's output: wrap the command in single quotes: `for /f "delims=" %i in ('dir /b *.txt') do @echo %i`.
+- `tokens=` picks which fields, `delims=` sets the separators, `skip=1` skips a header line.
+- At an interactive prompt use `%i`; inside a `.bat` file double it to `%%i`.
+
+### Filtering text
+
+- `findstr` is CMD's grep: `findstr "error" log.txt`, with `/I` ignore case, `/S` recurse, `/V` invert, `/N` line numbers, `/R` regex, and `/C:"exact phrase"` for a literal phrase.
+- `find` is simpler: `find "text"` keeps matching lines, `find /c /v ""` counts lines, `find /v "skip"` drops matching lines.
+- `sort` orders lines and `more` pages them. There is no `cut`, `awk` or `sed`; reach for PowerShell when you need those. See **Text Processing and Output**.
+
+### Pattern: search a log
+
+CMD has no `-Tail`/`-Last` equivalent, so it reads the whole file. For recent events, filter with `findstr` and page the result:
+
+```powershell
+findstr /I "update started" content_log.txt | more
+```
+
+- `/I` ignores case; add more terms with `findstr /I "started errored"` (space-separated terms are ORed).
+- `| more` pages the output; `> out.txt` saves it instead.
+- ⚠ There is no built-in "last 20 lines". For the tail-then-filter pattern, use PowerShell `Get-Content -Tail` or Bash `tail` (see those sections).
+
+### Safety habits
+
+- **Look before you delete.** List with `dir` first and read it.
+- **Dry-run a loop** by putting `echo` in front of the action: `for ... do @echo del "%i"` prints what it *would* delete without deleting. Remove `echo` to act.
+- ⚠ `del` and `rd /s /q` are permanent; there is no Recycle Bin from the command line and no undo.
+- 🔒 System folders and other users' files need an Administrator prompt.
+
+### Worked example: delete matching files, dry-run first
+
+Find every `.tmp` under the current folder and preview the deletes. The `@echo` makes it a dry run:
+
+```powershell
+for /f "delims=" %i in ('dir /b /s *.tmp') do @echo del "%i"
+```
+
+Read the printed list. Only when you trust it, drop the `echo` to actually delete. This cannot be undone:
+
+```powershell
+for /f "delims=" %i in ('dir /b /s *.tmp') do @del "%i"
+```
+
+- `dir /b /s *.tmp` lists bare, recursive full paths; `for /f` feeds each to the action.
+- ⚠ The second line is permanent. The `@echo` dry run is the whole safety habit; always run it first.
 
 ## Keyboard Shortcuts
 
