@@ -61,14 +61,24 @@ const inlineHtml = text => esc(text)
   .replace(/`([^`]+)`/g, '<code>$1</code>')
   .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
 
+// Each `h` subheading becomes a collapsible <details>; blocks before the first
+// `h` (the intro) render directly. Print CSS forces every group open.
 function articleBlocks(blocks) {
-  let out = '<div class="article">';
+  const body = b => {
+    if (b.p) return `<p>${inlineHtml(b.p)}</p>`;
+    if (b.ul) return '<ul>' + b.ul.map(i => `<li>${inlineHtml(i)}</li>`).join('') + '</ul>';
+    if (b.code) return `<pre><code>${b.code.map(esc).join('\n')}</code></pre>`;
+    return '';
+  };
+  let out = '<div class="article">', open = false;
   for (const b of blocks) {
-    if (b.h) out += `<h3>${inlineHtml(b.h)}</h3>`;
-    else if (b.p) out += `<p>${inlineHtml(b.p)}</p>`;
-    else if (b.ul) out += '<ul>' + b.ul.map(i => `<li>${inlineHtml(i)}</li>`).join('') + '</ul>';
-    else if (b.code) out += `<pre><code>${b.code.map(esc).join('\n')}</code></pre>`;
+    if (b.h) {
+      if (open) out += '</details>';
+      out += `<details class="artgroup"><summary>${inlineHtml(b.h)}</summary>`;
+      open = true;
+    } else out += body(b);
   }
+  if (open) out += '</details>';
   return out + '</div>';
 }
 
@@ -79,6 +89,8 @@ const shortcutRows = rows => table(['Action', 'CMD', 'PowerShell', 'Bash', 'Note
 ]);
 
 const allSections = ['Everyday Essentials', ...sections.map(s => s.title), 'Keyboard Shortcuts', 'Notes and Gotchas'];
+// Sections that contain starred essential rows (for the "Essentials only" view).
+const essTitles = new Set(['Everyday Essentials', ...essentials.map(e => e[0])]);
 const singleSections = sections.filter(s => s.kind === 'single');
 // body.hide-<slug> hides that section (and its nav link) when its toggle is off
 const sectionHideCss = singleSections.map(s => `body.hide-${slug(s.title)} #${slug(s.title)},body.hide-${slug(s.title)} nav a[href="#${slug(s.title)}"]{display:none}`).join('\n');
@@ -88,8 +100,12 @@ body += `<section id="everyday-essentials" class="multi-section"><h2>Everyday Es
 const tableFor = s => s.kind === 'single' ? singleRows(s.rows) : s.kind === 'platform' ? platformRows(s.rows, s.title) : commandRows(s.rows, s.title);
 const standalone = s => s.kind === 'single' || s.kind === 'article'; // no shell-column toggle, never hidden by them
 for (const s of sections) {
-  const inner = s.kind === 'article' ? articleBlocks(s.blocks) : tableFor(s);
-  body += `<section id="${slug(s.title)}"${standalone(s) ? '' : ' class="multi-section"'}><h2>${esc(s.title)}</h2>${inner}</section>`;
+  if (s.kind === 'article') {
+    // the whole section is one collapsible block; its subsections nest inside
+    body += `<section id="${slug(s.title)}"><details class="artsection" open><summary>${esc(s.title)}</summary>${articleBlocks(s.blocks)}</details></section>`;
+    continue;
+  }
+  body += `<section id="${slug(s.title)}"${standalone(s) ? '' : ' class="multi-section"'}><h2>${esc(s.title)}</h2>${tableFor(s)}</section>`;
 }
 const multiTitles = new Set(['Everyday Essentials', ...sections.filter(s => !standalone(s)).map(s => s.title)]);
 body += `<section id="keyboard-shortcuts"><h2>Keyboard Shortcuts</h2>${shortcutRows(shortcuts)}</section>`;
@@ -111,10 +127,12 @@ header h1{font-size:28px;margin:8px 0 2px}
 header .sub{color:var(--muted);font-size:15px;margin:0 0 10px}
 .howto{font-size:13.5px;margin:0 0 12px;max-width:1100px}
 .howto .ann{font-style:italic;color:var(--muted)}
-nav{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--border);padding:8px 0;margin:0 0 8px;display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center}
+nav{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--border);padding:8px 0;margin:0 0 8px;display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center}
+.navlinks{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center}
+.controls{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-left:auto}
 nav a{color:var(--accent);text-decoration:none;font-size:13px;white-space:nowrap}
 nav a:hover{text-decoration:underline}
-nav input{margin-left:auto;font:inherit;padding:5px 9px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--ink);min-width:220px}
+nav input{font:inherit;padding:5px 9px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--ink);min-width:200px}
 h2{font-size:19px;color:var(--head);margin:26px 0 8px}
 @media (prefers-color-scheme:dark){h2{color:#cbd5e1}}
 h3{font-size:15px;margin:14px 0 4px}
@@ -139,9 +157,13 @@ body.hide-ps table.multi th:nth-child(3),body.hide-ps table.multi td:nth-child(3
 body.hide-bash table.multi th:nth-child(4),body.hide-bash table.multi td:nth-child(4){display:none}
 ${sectionHideCss}
 body.hide-multi .multi-section,body.hide-multi nav a[data-multi]{display:none}
-.toggles{display:flex;gap:10px;align-items:center;font-size:13px;color:var(--muted);padding-left:8px;border-left:1px solid var(--border)}
+.toggles{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:13px;color:var(--muted);padding-left:10px;border-left:1px solid var(--border)}
+.toggles-label{font-weight:600}
 .toggles label{display:inline-flex;align-items:center;gap:4px;cursor:pointer;white-space:nowrap}
 .toggles input{margin:0;min-width:0}
+.toggles .essonly{padding-left:10px;border-left:1px solid var(--border)}
+body.essentials-only .essonly{color:var(--accent);font-weight:600}
+body.essentials-only nav a:not([data-ess]){display:none}
 td.task{font-weight:600}
 td.note{font-size:12.5px}
 .line{margin:0 0 3px;overflow-wrap:anywhere}
@@ -155,8 +177,23 @@ tbody code.copied::after{content:"Copied";position:absolute;left:0;bottom:calc(1
 .notegroup{break-inside:avoid;margin-bottom:10px}
 .notes ul{margin:0;padding-left:20px}
 .notes li{margin:0 0 4px;font-size:13.5px}
+.artsection{margin:26px 0 8px}
+.artsection>summary{cursor:pointer;list-style:none;font-size:19px;font-weight:700;color:var(--head);display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.artsection>summary::-webkit-details-marker{display:none}
+.artsection>summary::before{content:"▸";font-size:14px;color:var(--muted)}
+.artsection[open]>summary::before{content:"▾"}
+.artsection>summary:hover{color:var(--accent)}
+@media (prefers-color-scheme:dark){.artsection>summary{color:#cbd5e1}}
 .article{max-width:1100px}
-.article h3{margin:16px 0 4px}
+.article>p:first-child{margin-top:4px}
+.article details.artgroup{border-top:1px solid var(--border)}
+.article details.artgroup>summary{cursor:pointer;list-style:none;font-size:15px;font-weight:700;color:var(--ink);margin:0;padding:9px 0;display:flex;align-items:center;gap:8px}
+.article details.artgroup>summary::-webkit-details-marker{display:none}
+.article details.artgroup>summary::before{content:"▸";color:var(--muted);font-size:11px;width:10px}
+.article details.artgroup[open]>summary::before{content:"▾"}
+.article details.artgroup>summary:hover{color:var(--accent)}
+.article details.artgroup[open]{padding-bottom:8px}
+.article details.artgroup>:not(summary){margin-left:18px}
 .article p{font-size:13.5px;margin:6px 0}
 .article ul{margin:4px 0 10px;padding-left:22px}
 .article li{font-size:13.5px;margin:0 0 4px}
@@ -182,7 +219,9 @@ footer{margin-top:32px;color:var(--muted);font-size:12px}
   tbody tr:nth-child(even){background:var(--zebra)!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .notes{columns:3}
   .article{max-width:none}
-  .article h3{page-break-after:avoid}
+  .artsection>*,.article details.artgroup>*{display:block!important}
+  .artsection>summary,.article details.artgroup>summary{page-break-after:avoid}
+  .artsection>summary::before,.article details.artgroup>summary::before{content:""!important}
   .article pre{page-break-inside:avoid}
   a{color:inherit}
 }`;
@@ -204,14 +243,19 @@ const html = `<!doctype html>
 <p class="howto"><strong>How to read this sheet.</strong> Each row shows the same task in all three shells. Commands are in monospace; <span class="ann">grey italics</span> explain flags or name an alias for the same command. 🔒 needs administrator, root or sudo. ⚠ destructive; check before running. (Linux) or (macOS) marks a command that exists only on that platform. <span class="star">★</span> marks the everyday essentials. Click any command to copy it.</p>
 </header>
 <nav>
-${allSections.map(t => `<a href="#${slug(t)}"${multiTitles.has(t) ? ' data-multi' : ''}>${esc(t)}</a>`).join('\n')}
+<div class="navlinks">
+${allSections.map(t => `<a href="#${slug(t)}"${multiTitles.has(t) ? ' data-multi' : ''}${essTitles.has(t) ? ' data-ess' : ''}>${esc(t)}</a>`).join('\n')}
+</div>
+<div class="controls">
 <input id="filter" type="search" placeholder="Filter rows… (e.g. ssh, -Recurse)" aria-label="Filter rows">
-<span class="toggles" role="group" aria-label="Show columns and sections">Show:
+<span class="toggles" role="group" aria-label="Show columns and sections"><span class="toggles-label">Show</span>
 <label><input type="checkbox" data-col="cmd" checked> CMD</label>
 <label><input type="checkbox" data-col="ps" checked> PowerShell</label>
 <label><input type="checkbox" data-col="bash" checked> Bash</label>
 ${singleSections.map(s => `<label><input type="checkbox" data-section="${slug(s.title)}" checked> ${esc(s.title)}</label>`).join('\n')}
+<label class="essonly" title="Show only the starred everyday essentials"><input type="checkbox" id="ess-only"> <span class="star">★</span>&nbsp;Essentials only</label>
 </span>
+</div>
 </nav>
 <p id="nomatch" hidden>No rows match <strong id="nomatch-q"></strong>. Try fewer letters, or check the Show toggles above.</p>
 ${body}
@@ -223,18 +267,29 @@ ${body}
   var rows=[].slice.call(document.querySelectorAll('tbody tr'));
   var cache=rows.map(function(r){return r.textContent.toLowerCase();});
   var nomatch=document.getElementById('nomatch'),nomatchQ=document.getElementById('nomatch-q');
+  var essToggle=document.getElementById('ess-only'),ESS_KEY='cli-cheat-sheet-ess';
   function apply(){
     var q=box.value.trim().toLowerCase();
-    rows.forEach(function(r,i){r.classList.toggle('hide',q&&cache[i].indexOf(q)<0);});
+    var ess=essToggle&&essToggle.checked;
+    document.body.classList.toggle('essentials-only',ess);
+    rows.forEach(function(r,i){r.classList.toggle('hide',(q&&cache[i].indexOf(q)<0)||(ess&&!r.querySelector('.star')));});
     document.querySelectorAll('section').forEach(function(s){
-      var t=s.querySelector('tbody');if(!t)return;
-      s.style.display=(q&&!t.querySelector('tr:not(.hide)'))?'none':'';
+      var t=s.querySelector('tbody');
+      if(t){s.style.display=t.querySelector('tr:not(.hide)')?'':'none';}
+      else{s.style.display=ess?'none':'';} // prose sections (tutorial, notes) are not essentials
     });
     var any=rows.some(function(r){return r.offsetParent!==null;});
     nomatch.hidden=!(q&&!any);
     nomatchQ.textContent=box.value.trim();
   }
   box.addEventListener('input',apply);
+  if(essToggle){
+    try{essToggle.checked=localStorage.getItem(ESS_KEY)==='1';}catch(e){}
+    essToggle.addEventListener('change',function(){
+      try{localStorage.setItem(ESS_KEY,essToggle.checked?'1':'0');}catch(e){}
+      apply();
+    });
+  }
   document.addEventListener('keydown',function(e){if(e.key==='/'&&document.activeElement!==box){e.preventDefault();box.focus();}});
 
   // Column and section toggles, remembered per browser.
@@ -271,6 +326,7 @@ ${body}
     });
   });
   applyCols();
+  apply(); // apply any persisted "Essentials only" state on load
 
   // Click a command to copy it.
   function copyText(text){
