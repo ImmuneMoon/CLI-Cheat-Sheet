@@ -180,7 +180,7 @@ const children = [];
 
 children.push(new Paragraph({ heading: HeadingLevel.HEADING_1, spacing: { after: 40 }, children: [new TextRun({ text: 'Command Line Interface Cheat Sheet' })] }));
 children.push(new Paragraph({ spacing: { after: 80 }, children: [
-  new TextRun({ text: 'Windows CMD  ·  PowerShell  ·  Bash (Linux and macOS)  ·  Git', font: SANS, size: 22, color: '4B5563' }),
+  new TextRun({ text: 'Windows CMD  ·  PowerShell  ·  Bash (Linux and macOS)  ·  Git  ·  Docker', font: SANS, size: 22, color: '4B5563' }),
 ] }));
 
 children.push(new Paragraph({ spacing: { after: 60 }, children: [

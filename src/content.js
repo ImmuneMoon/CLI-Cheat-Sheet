@@ -849,9 +849,9 @@ const essentials = [
   ['Environment, History and Shell Basics', 'Get help'],
 ];
 
-// Teaching sections (prose/code), kept in their own files; appear after Docker.
-sections.push(require('./article.js'));
-sections.push(require('./article-bash.js'));
-sections.push(require('./article-cmd.js'));
+// Teaching sections (prose/code), kept in their own files; placed just before Developer Setup.
+const devSetupIdx = sections.findIndex(s => s.title === 'Developer Setup');
+sections.splice(devSetupIdx >= 0 ? devSetupIdx : sections.length, 0,
+  require('./article.js'), require('./article-bash.js'), require('./article-cmd.js'));
 
 module.exports = { sections, shortcuts, notes, essentials };

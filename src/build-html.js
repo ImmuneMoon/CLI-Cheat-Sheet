@@ -233,14 +233,14 @@ const html = `<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Command Line Interface Cheat Sheet</title>
-<meta name="description" content="Windows CMD, PowerShell, Bash and Git commands side by side.">
+<meta name="description" content="Windows CMD, PowerShell, Bash, Git and Docker commands side by side.">
 <style>${css}</style>
 </head>
 <body>
 <div class="wrap">
 <header>
 <h1>Command Line Interface Cheat Sheet</h1>
-<p class="sub">Windows CMD &nbsp;·&nbsp; PowerShell &nbsp;·&nbsp; Bash (Linux and macOS) &nbsp;·&nbsp; Git</p>
+<p class="sub">Windows CMD &nbsp;·&nbsp; PowerShell &nbsp;·&nbsp; Bash (Linux and macOS) &nbsp;·&nbsp; Git &nbsp;·&nbsp; Docker</p>
 <p class="howto"><strong>How to read this sheet.</strong> Each row shows the same task in all three shells. Commands are in monospace; <span class="ann">grey italics</span> explain flags or name an alias for the same command. 🔒 needs administrator, root or sudo. ⚠ destructive; check before running. (Linux) or (macOS) marks a command that exists only on that platform. <span class="star">★</span> marks the everyday essentials. Click any command to copy it.</p>
 </header>
 <nav>

@@ -51,7 +51,7 @@ const toc = ['Everyday Essentials', ...sections.map(s => s.title), 'Keyboard Sho
 
 let md = `# Command Line Interface Cheat Sheet
 
-Windows CMD · PowerShell · Bash (Linux and macOS) · Git
+Windows CMD · PowerShell · Bash (Linux and macOS) · Git · Docker
 
 **How to read this sheet.** Each row shows the same task in all three shells. Commands are in \`monospace\`; *italics* explain flags or name an alias for the same command. 🔒 needs administrator, root or sudo. ⚠ destructive; check before running. *(Linux)* or *(macOS)* marks a command that exists only on that platform. ★ marks the everyday essentials.
 
