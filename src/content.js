@@ -624,7 +624,7 @@ const sections = [
  ['curl -fsSL https://fnm.vercel.app/install | bash (version manager)', 'fnm install --lts', '(distro packages are often years old)'],
  'A version manager such as fnm or nvm lets you switch Node versions per project.'],
 ['Python',
- ['winget install Python.Python.3.12', 'python --version', 'py -3 (launcher; picks an installed version)'],
+ ['winget install --id Python.PythonInstallManager -e', 'py install 3.15 (or another version)', 'py list (installed versions)', 'py -3.15 (run a specific version)'],
  ['brew install python', 'python3 --version'],
  ['sudo apt install python3 python3-pip python3-venv', 'python3 --version'],
  'Per-project environment: python -m venv .venv, then .venv\\Scripts\\activate (Windows) or source .venv/bin/activate.'],

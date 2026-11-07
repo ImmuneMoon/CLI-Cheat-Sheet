@@ -42,6 +42,15 @@ Windows CMD, PowerShell and Bash (Linux and macOS) commands side by side, plus G
 - Keyboard shortcuts
 - Notes and gotchas: paths, quoting, wildcards, how PowerShell differs, macOS, zsh and WSL, Git on Windows
 
+## Related guides
+
+The sheet lists commands; these guides walk through using them:
+
+- [Learn Web Development: Start Here](https://github.com/ImmuneMoon/Learn-Web-Development-Start-Here#63-git-and-github): Git and GitHub for beginners, and where to go after the basics.
+- [Getting Started with DevOps](https://github.com/ImmuneMoon/Getting-Started-with-DevOps): Linux, Git, CI/CD, Docker and the rest of the DevOps path, in order.
+- [Publishing to GitHub with gh](https://github.com/ImmuneMoon/Publishing-to-GitHub-with-gh): creating repositories, pushing and releasing from the command line, and keeping secrets out of your repos.
+- [Python and Node Tool Environments](https://github.com/ImmuneMoon/Python-and-Node-Tool-Environments): installing Python with the install manager, and per-project virtual environments.
+
 Markers used throughout:
 
 - 🔒 needs administrator, root or sudo
