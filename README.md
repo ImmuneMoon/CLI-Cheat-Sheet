@@ -50,6 +50,7 @@ The sheet lists commands; these guides walk through using them:
 - [Getting Started with DevOps](https://github.com/ImmuneMoon/Getting-Started-with-DevOps): Linux, Git, CI/CD, Docker and the rest of the DevOps path, in order.
 - [Publishing to GitHub with gh](https://github.com/ImmuneMoon/Publishing-to-GitHub-with-gh): creating repositories, pushing and releasing from the command line, and keeping secrets out of your repos.
 - [Python and Node Tool Environments](https://github.com/ImmuneMoon/Python-and-Node-Tool-Environments): installing Python with the install manager, and per-project virtual environments.
+- [Fix Stuck Windows Update Prompts](https://github.com/ImmuneMoon/Fix-Stuck-Windows-Update-Prompts#phase-6-an-update-that-keeps-failing-prompt-f): DISM, SFC and the Windows Update reset commands, run in order when an update keeps failing.
 
 Markers used throughout:
 
